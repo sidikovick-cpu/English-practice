@@ -1,484 +1,730 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
-<head>
+ <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Quiz Tiếng Anh</title>
+  <title>English Learning Pro</title>
+  <script src="/_sdk/element_sdk.js"></script>
   <style>
     :root {
-      --bg1: #dbeafe;
-      --bg2: #e9d5ff;
-      --card: rgba(255,255,255,0.94);
-      --text: #1f2937;
-      --muted: #6b7280;
-      --primary: #2563eb;
-      --primary2: #7c3aed;
-      --good: #16a34a;
-      --bad: #dc2626;
-      --shadow: 0 20px 45px rgba(31,41,55,.15);
-      --radius: 24px;
+      --primary: #4361ee;
+      --accent: #4cc9f0;
+      --success: #48bb78;
     }
     * { box-sizing: border-box; }
+    html { height: 100%; }
     body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      color: var(--text);
-      min-height: 100vh;
-      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+      margin: 0; padding: 0; height: 100%; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, var(--primary) 0%, #764ba2 100%);
+      color: #2d3748; overflow: hidden;
     }
-    .wrap {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 18px;
+    .app-wrapper {
+      width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;
+      padding: 20px; overflow: auto;
     }
     .app {
-      width: min(980px, 100%);
-      background: var(--card);
-      backdrop-filter: blur(10px);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      overflow: hidden;
+      width: 100%; max-width: 900px; background: white;
+      border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden;
+      animation: fadeIn 0.4s ease;
     }
-    .hero {
-      padding: 28px;
-      background: linear-gradient(135deg, #1d4ed8, #7c3aed);
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, #764ba2 100%);
+      color: white; padding: 40px 30px; text-align: center;
+    }
+    .header h1 { margin: 0; font-size: 2.2rem; font-weight: 700; }
+    .header p { margin: 8px 0 0; opacity: 0.9; font-size: 1rem; }
+    .content { padding: 40px; }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px; }
+    .card-btn {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      border: 2px solid transparent; border-radius: 16px;
+      padding: 30px 20px; cursor: pointer; text-align: center;
+      transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .card-btn:hover {
+      border-color: var(--primary); transform: translateY(-8px);
+      box-shadow: 0 12px 25px rgba(102, 126, 234, 0.3);
+    }
+    .card-btn .emoji { font-size: 2.5rem; display: block; margin-bottom: 10px; }
+    .card-btn h3 { margin: 10px 0 0; font-size: 1.15rem; font-weight: 600; }
+    .btn {
+      display: block; width: 100%; padding: 14px; margin-top: 12px;
+      border: none; border-radius: 10px; font-weight: 600; cursor: pointer;
+      transition: all 0.3s; font-size: 1rem;
+    }
+    .btn-main {
+      background: linear-gradient(135deg, var(--primary) 0%, #764ba2 100%);
       color: white;
     }
-    .hero h1 { margin: 0 0 8px; font-size: 34px; }
-    .hero p { margin: 0; opacity: .95; line-height: 1.5; }
-    .content { padding: 24px; }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-      margin-top: 14px;
+    .btn-main:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4); }
+    .btn-main:active { transform: translateY(0); }
+    .btn-outline {
+      background: transparent; border: 2px solid var(--primary); color: var(--primary);
+      font-weight: 600;
     }
-    .card {
-      border: 1px solid #e5e7eb;
-      border-radius: 20px;
-      padding: 18px;
-      background: white;
-      box-shadow: 0 8px 18px rgba(0,0,0,.05);
+    .btn-outline:hover { background: #f0f4ff; }
+
+    .q-box {
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      padding: 25px; border-radius: 16px; margin-bottom: 25px;
     }
-    .topic {
-      cursor: pointer;
-      transition: transform .18s ease, box-shadow .18s ease;
+    .q-box h3 { margin: 0 0 20px; font-size: 1.3rem; color: #2d3748; }
+    .opt-list { list-style: none; padding: 0; margin: 0; }
+    .opt-item {
+      background: white; border: 2px solid #e2e8f0; padding: 16px 20px;
+      margin-bottom: 12px; border-radius: 12px; cursor: pointer;
+      transition: all 0.2s; font-size: 1rem;
     }
-    .topic:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 12px 26px rgba(0,0,0,.10);
+    .opt-item:hover:not(.answered) { border-color: #667eea; background: #f0f4ff; }
+    .opt-item.answered { cursor: default; }
+    .opt-item.correct { background: #c6f6d5; border-color: var(--success); color: #22543d; font-weight: 600; }
+    .opt-item.wrong { background: #fed7d7; border-color: #f56565; color: #742a2a; font-weight: 600; }
+
+    input[type="text"] {
+      width: 100%; padding: 14px; border-radius: 10px; border: 2px solid #e2e8f0;
+      font-size: 1rem; transition: border 0.2s; font-family: inherit;
     }
-    .tag {
-      display: inline-block;
-      font-size: 12px;
-      padding: 5px 10px;
-      border-radius: 999px;
-      background: #eff6ff;
-      color: #1d4ed8;
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
-    .tag.purple { background: #f5f3ff; color: #7c3aed; }
-    .tag.green { background: #ecfdf5; color: #059669; }
-    .btn {
-      border: none;
-      border-radius: 14px;
-      padding: 12px 16px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: transform .15s ease, opacity .15s ease, background .15s ease;
-    }
-    .btn:hover { transform: translateY(-1px); }
-    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary2)); color: white; }
-    .btn-soft { background: #eef2ff; color: #3730a3; }
-    .btn-outline { background: white; border: 1px solid #cbd5e1; color: #111827; }
-    .btn-good { background: #dcfce7; color: #166534; }
-    .btn-bad { background: #fee2e2; color: #991b1b; }
-    .btn-ghost { background: #f8fafc; color: #334155; }
-    .muted { color: var(--muted); }
-    .row { display:flex; flex-wrap: wrap; gap: 10px; }
-    .between { display:flex; justify-content: space-between; align-items:center; gap: 10px; flex-wrap:wrap; }
-    .qbox {
-      padding: 20px;
-      border-radius: 20px;
-      background: white;
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 8px 18px rgba(0,0,0,.05);
-    }
-    .options {
-      display:grid;
-      gap: 10px;
-      margin-top: 16px;
-    }
-    .opt {
-      width:100%;
-      text-align:left;
-      padding: 14px 16px;
-      border-radius: 14px;
-      border: 1px solid #dbe3ea;
-      background: #f8fafc;
-      cursor: pointer;
-      transition: all .16s ease;
-      font-size: 16px;
-    }
-    .opt:hover { background: #eef2ff; border-color: #c7d2fe; }
-    .opt.correct { background: #dcfce7; border-color:#86efac; color:#166534; }
-    .opt.wrong { background: #fee2e2; border-color:#fca5a5; color:#991b1b; }
-    .progress {
-      height: 10px;
-      background: #e5e7eb;
-      border-radius: 999px;
-      overflow: hidden;
-      margin: 12px 0 18px;
-    }
-    .bar {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #2563eb, #7c3aed);
-      transition: width .25s ease;
-    }
-    .pill {
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      background: #eff6ff;
-      color: #1d4ed8;
-      padding: 7px 12px;
-      border-radius: 999px;
-      font-weight: 700;
-      font-size: 13px;
-    }
+    input[type="text"]:focus { outline: none; border-color: #667eea; background: #f0f4ff; }
+
     .feedback {
-      margin-top: 14px;
-      border-radius: 16px;
-      padding: 14px 16px;
-      line-height: 1.6;
-      white-space: pre-line;
+      padding: 16px 20px; border-radius: 12px; margin-top: 12px; display: none;
+      line-height: 1.6; font-size: 0.95rem; animation: slideIn 0.3s ease;
     }
-    .feedback.good { background:#ecfdf5; color:#166534; }
-    .feedback.bad { background:#fef2f2; color:#991b1b; }
-    .feedback.hint { background:#eff6ff; color:#1d4ed8; }
-    .badge {
-      display:inline-block;
-      margin-top: 8px;
-      padding: 8px 12px;
-      background: #fef3c7;
-      color: #92400e;
-      border-radius: 999px;
-      font-weight: 700;
+    .feedback.show { display: block; }
+    .correct-msg { background: #c6f6d5; color: #22543d; }
+    .wrong-msg { background: #fed7d7; color: #742a2a; }
+
+    .hidden { display: none; }
+    .progress-bar {
+      height: 6px; background: #e2e8f0; border-radius: 3px; margin-bottom: 25px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%; background: linear-gradient(90deg, var(--primary) 0%, #764ba2 100%);
+      width: 0%; transition: width 0.3s ease; border-radius: 3px;
+    }
+
+    .result-area {
+      text-align: center; padding: 30px;
+    }
+    .result-area h2 {
+      font-size: 2rem; margin: 0 0 10px; background: linear-gradient(135deg, var(--primary) 0%, #764ba2 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .result-score {
+      font-size: 3.5rem; font-weight: bold; color: var(--primary); margin: 20px 0;
+    }
+    .result-info { color: #718096; font-size: 1.1rem; margin: 15px 0; }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes confetti-fall {
+      0% { transform: translateY(-100vh) rotateZ(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotateZ(720deg); opacity: 0; }
+    }
+    @keyframes sad-fall {
+      0% { transform: translateY(-50px) rotateZ(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotateZ(180deg); opacity: 0; }
     }
     .confetti {
-      position: fixed;
-      inset: 0;
-      pointer-events:none;
-      overflow:hidden;
-      z-index: 50;
+      position: fixed; top: 0; font-size: 3rem; pointer-events: none; z-index: 9999;
+      animation: confetti-fall 3s ease-in forwards;
     }
-    .confetti span {
-      position:absolute;
-      top:-20px;
-      font-size: 22px;
-      animation: fall 1.8s linear forwards;
+    .sad-emoji {
+      position: fixed; top: 50%; font-size: 2.5rem; pointer-events: none; z-index: 9999;
+      animation: sad-fall 3.5s ease-in forwards;
     }
-    @keyframes fall {
-      from { transform: translateY(-20px) rotate(0deg); opacity: 1; }
-      to { transform: translateY(105vh) rotate(420deg); opacity: 0; }
+    .score-display {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      font-size: 4rem; font-weight: bold; color: var(--success);
+      pointer-events: none; z-index: 9998;
+      animation: scoreAppear 0.5s ease;
+      text-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
     }
-    @media (max-width: 640px) {
-      .hero h1 { font-size: 26px; }
-      .content { padding: 16px; }
+    @keyframes scoreAppear {
+      0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+      70% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+      100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+    }
+
+    @media (max-width: 768px) {
+      .grid { grid-template-columns: 1fr; }
+      .header { padding: 30px 20px; }
+      .header h1 { font-size: 1.8rem; }
+      .content { padding: 20px; }
+      .q-box { padding: 15px; }
+      .app-wrapper { padding: 10px; }
     }
   </style>
-</head>
-<body>
-<div class="wrap">
-  <div class="app">
-    <div class="hero">
-      <h1>Quiz Tiếng Anh</h1>
-      <p>Học theo chủ đề, chọn cấp độ, làm từng câu, nhận khen ngợi khi đúng, và có gợi ý tiếng Việt khi chưa biết.</p>
+  <style>body { box-sizing: border-box; }</style>
+  <script src="https://cdn.tailwindcss.com/3.4.17" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="app-wrapper">
+   <div class="app">
+    <div class="header">
+     <h1 id="main-title">English Learning Pro</h1>
+     <p id="sub-title">Choose a topic to start</p>
     </div>
-    <div id="root" class="content"></div>
+    <div class="content">
+     <div id="step-topic">
+      <div class="grid">
+       <div class="card-btn" onclick="selectTopic('family')"><span class="emoji">🏠</span>
+        <h3 class="topic-name">Family</h3><small style="color: #667eea; font-weight: 600;">Gia đình</small>
+       </div>
+       <div class="card-btn" onclick="selectTopic('travel')"><span class="emoji">✈️</span>
+        <h3 class="topic-name">Travel</h3><small style="color: #667eea; font-weight: 600;">Du lịch</small>
+       </div>
+       <div class="card-btn" onclick="selectTopic('work')"><span class="emoji">💼</span>
+        <h3 class="topic-name">Work</h3><small style="color: #667eea; font-weight: 600;">Công việc</small>
+       </div>
+      </div>
+     </div>
+     <div id="step-mode" class="hidden">
+      <div class="grid">
+       <div class="card-btn" onclick="startQuiz('mc')"><span class="emoji">📝</span>
+        <h3 class="mode-name">Multiple Choice</h3><small style="color: #667eea; font-weight: 600;">Trắc nghiệm</small>
+       </div>
+       <div class="card-btn" onclick="startQuiz('fill')"><span class="emoji">✏️</span>
+        <h3 class="mode-name">Fill the Blank</h3><small style="color: #667eea; font-weight: 600;">Điền từ</small>
+       </div>
+       <div class="card-btn" onclick="startQuiz('trans')"><span class="emoji">🌐</span>
+        <h3 class="mode-name">Translation</h3><small style="color: #667eea; font-weight: 600;">Dịch câu</small>
+       </div>
+      </div><button class="btn btn-outline" style="margin-top: 20px; font-size: 1rem; padding: 8px 12px; width: auto;" onclick="goBack()" id="back-mode-btn">&lt;</button>
+     </div>
+     <div id="quiz-area" class="hidden">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+       <button class="btn btn-outline" style="font-size: 1rem; padding: 8px 12px; width: auto;" onclick="exitQuiz()" id="back-quiz-btn">&lt;</button>
+       <div style="font-size: 1.2rem; font-weight: 600; color: var(--primary);" id="score-display">
+        0 / 0
+       </div>
+      </div>
+      <div class="progress-bar">
+       <div id="progress" class="progress-fill"></div>
+      </div>
+      <div id="question-container" class="q-box"></div>
+      <div id="input-area" class="hidden"><input type="text" id="user-answer" placeholder="Type your answer here..." onkeypress="handleInputKeypress(event)"> <button class="btn btn-main" id="check-btn" onclick="checkAnswer()">Check Answer</button>
+      </div>
+      <div id="feedback" class="feedback"></div><button id="next-btn" class="btn btn-main hidden" onclick="nextQuestion()">Next Question</button>
+     </div>
+     <div id="result-area" class="hidden result-area">
+      <h2>Quiz Completed!</h2>
+      <div class="result-score" id="final-score"></div>
+      <div class="result-info" id="result-message"></div>
+      <div id="detailed-stats" style="background: #f5f7fa; padding: 25px; border-radius: 12px; margin-top: 25px; text-align: left;">
+       <h3 style="margin: 0 0 15px; color: #2d3748; font-size: 1.2rem;">📊 Chi tiết kết quả:</h3>
+       <div id="stats-content" style="font-size: 0.95rem; line-height: 1.8; color: #4a5568;"></div>
+       <div id="improvement-tips" style="background: white; padding: 15px; border-radius: 10px; margin-top: 15px; border-left: 4px solid var(--primary);"></div>
+      </div><button class="btn btn-main" style="margin-top: 20px;" id="try-again-btn" onclick="location.reload()">Try Another Topic</button>
+     </div>
+    </div>
+   </div>
   </div>
-</div>
+  <script>
+let currentTopic = "";
+let currentMode = "";
+let currentIndex = 0;
+let score = 0;
+let activeQuestions = [];
+let wrongAnswers = [];
 
-<div id="confetti" class="confetti" aria-hidden="true"></div>
-
-<script>
-const QUIZ_DATA = {"family": [{"q": "My father's sister is my ________.", "options": ["uncle", "aunt", "cousin", "niece"], "answer": 1, "explain": "Aunt là cô/dì/bác gái, tức chị/em gái của bố hoặc mẹ.", "hint": "Người này là chị/em gái của bố."}, {"q": "Your son's daughter is your ________.", "options": ["grandson", "granddaughter", "niece", "grandmother"], "answer": 1, "explain": "Granddaughter là cháu gái, tức con của con trai hoặc con gái bạn.", "hint": "Đây là con gái của con bạn."}, {"q": "My mother and father are my ________.", "options": ["relatives", "ancestors", "parents", "partners"], "answer": 2, "explain": "Parents là bố mẹ.", "hint": "Từ chỉ chung bố và mẹ."}, {"q": "A person who has no brothers or sisters is an ________ child.", "options": ["alone", "only", "single", "lonely"], "answer": 1, "explain": "Only child là con một.", "hint": "Từ đi với ‘child’ để chỉ con một."}, {"q": "My brother's son is my ________.", "options": ["nephew", "niece", "cousin", "stepbrother"], "answer": 0, "explain": "Nephew là cháu trai, con của anh/chị/em ruột.", "hint": "Con trai của anh/em."}, {"q": "The man who is married to your mother but is not your biological father is your ________.", "options": ["father-in-law", "stepfather", "uncle", "godfather"], "answer": 1, "explain": "Stepfather là bố dượng, không phải bố ruột.", "hint": "Bố kế / bố dượng."}, {"q": "If you are married, your wife's mother is your ________.", "options": ["stepmother", "mother-in-law", "godmother", "aunt"], "answer": 1, "explain": "Mother-in-law là mẹ vợ hoặc mẹ chồng.", "hint": "Mẹ của vợ/chồng."}, {"q": "Your female child is your ________.", "options": ["daughter", "son", "sister", "girl"], "answer": 0, "explain": "Daughter là con gái.", "hint": "Con của bạn là nữ."}, {"q": "My sister and I have the same parents. She is my ________.", "options": ["relative", "sibling", "twin", "cousin"], "answer": 1, "explain": "Sibling là anh chị em ruột.", "hint": "Từ chỉ anh/chị/em cùng bố mẹ."}, {"q": "The son of your aunt or uncle is your ________.", "options": ["nephew", "cousin", "brother", "grandson"], "answer": 1, "explain": "Cousin là anh chị em họ.", "hint": "Con của cô/dì/chú/bác."}, {"q": "My father's father is my ________.", "options": ["grandfather", "grandmother", "grandson", "uncle"], "answer": 0, "explain": "Grandfather là ông nội/ông ngoại.", "hint": "Bố của bố."}, {"q": "A woman who is about to get married is called a ________.", "options": ["groom", "bride", "wife", "fiancé"], "answer": 1, "explain": "Bride là cô dâu.", "hint": "Chú rể là groom, còn cô dâu là gì?"}, {"q": "When a marriage ends legally, the couple gets ________.", "options": ["separated", "engaged", "divorced", "married"], "answer": 2, "explain": "Divorced là ly hôn.", "hint": "Hôn nhân kết thúc hợp pháp."}, {"q": "My husband's sister is my ________.", "options": ["sister-in-law", "stepmother", "aunt", "cousin"], "answer": 0, "explain": "Sister-in-law là chị/em dâu hoặc chị/em chồng.", "hint": "Chị/em của chồng/vợ."}, {"q": "Two children born at the same time to the same mother are ________.", "options": ["couples", "twins", "doubles", "partners"], "answer": 1, "explain": "Twins là anh/chị/em sinh đôi.", "hint": "Sinh cùng lúc từ một mẹ."}, {"q": "A girl who has the same father but a different mother is your ________.", "options": ["sister-in-law", "half-sister", "stepsister", "cousin"], "answer": 1, "explain": "Half-sister là chị/em cùng cha khác mẹ.", "hint": "Cùng cha, khác mẹ."}, {"q": "A man whose wife has died is a ________.", "options": ["widow", "widower", "single", "bachelor"], "answer": 1, "explain": "Widower là người đàn ông góa vợ.", "hint": "Từ cho nam khi vợ đã mất."}, {"q": "If your sister has a baby girl, that girl is your ________.", "options": ["nephew", "niece", "cousin", "granddaughter"], "answer": 1, "explain": "Niece là cháu gái, con của anh/chị/em ruột.", "hint": "Con gái của chị/em bạn."}, {"q": "A family that includes grandparents, aunts, and uncles is an ________ family.", "options": ["nuclear", "extended", "small", "modern"], "answer": 1, "explain": "Extended family là gia đình mở rộng nhiều thế hệ.", "hint": "Gia đình có ông bà, cô dì chú bác."}, {"q": "The people you are related to are your ________.", "options": ["friends", "relatives", "neighbors", "colleagues"], "answer": 1, "explain": "Relatives là họ hàng, thân nhân.", "hint": "Từ chỉ người thân trong họ."}, {"q": "My mother's brother is my ________.", "options": ["aunt", "nephew", "uncle", "cousin"], "answer": 2, "explain": "Uncle là chú, bác, cậu.", "hint": "Anh/em trai của mẹ."}, {"q": "A male parent is a ________.", "options": ["mother", "father", "brother", "son"], "answer": 1, "explain": "Father là bố.", "hint": "Cha của bạn."}, {"q": "Your brother's wife is your ________.", "options": ["sister", "sister-in-law", "mother-in-law", "aunt"], "answer": 1, "explain": "Sister-in-law là chị/em dâu.", "hint": "Vợ của anh/em trai."}, {"q": "A woman who has never been married is often called ________.", "options": ["single", "widow", "divorced", "bride"], "answer": 0, "explain": "Single là người độc thân.", "hint": "Chưa kết hôn."}, {"q": "My grandfather's wife is my ________.", "options": ["grandmother", "aunt", "mother", "stepmother"], "answer": 0, "explain": "Grandmother là bà nội/bà ngoại.", "hint": "Vợ của ông."}, {"q": "A ________ family consists of only parents and their children.", "options": ["big", "nuclear", "extended", "single"], "answer": 1, "explain": "Nuclear family là gia đình hạt nhân.", "hint": "Chỉ có bố mẹ và con."}, {"q": "The daughter of your step-parent is your ________.", "options": ["half-sister", "stepsister", "cousin", "niece"], "answer": 1, "explain": "Stepsister là chị/em gái kế, con riêng của bố dượng/mẹ kế.", "hint": "Con riêng của cha/mẹ kế."}, {"q": "My son's wife is my ________.", "options": ["daughter-in-law", "stepdaughter", "niece", "aunt"], "answer": 0, "explain": "Daughter-in-law là con dâu.", "hint": "Vợ của con trai bạn."}, {"q": "When a man and woman promise to marry each other, they are ________.", "options": ["married", "divorced", "engaged", "separated"], "answer": 2, "explain": "Engaged là đính hôn.", "hint": "Đã hứa sẽ kết hôn."}, {"q": "Your father's new wife who is not your biological mother is your ________.", "options": ["stepmother", "mother-in-law", "aunt", "godmother"], "answer": 0, "explain": "Stepmother là mẹ kế.", "hint": "Mẹ không phải ruột."}, {"q": "The female parent of your father is your ________.", "options": ["grandfather", "grandmother", "aunt", "mother"], "answer": 1, "explain": "Grandmother là bà nội/bà ngoại.", "hint": "Mẹ của bố."}, {"q": "A male sibling is a ________.", "options": ["sister", "brother", "uncle", "cousin"], "answer": 1, "explain": "Brother là anh/em trai ruột.", "hint": "Anh/em trai."}, {"q": "My sister's husband is my ________.", "options": ["brother-in-law", "stepbrother", "nephew", "cousin"], "answer": 0, "explain": "Brother-in-law là anh/em rể.", "hint": "Chồng của chị/em gái."}, {"q": "A woman whose husband has died and who has not remarried is a ________.", "options": ["widower", "widow", "single", "divorced"], "answer": 1, "explain": "Widow là góa phụ.", "hint": "Từ cho nữ khi chồng đã mất."}, {"q": "If you are a boy, you are the ________ of your parents.", "options": ["daughter", "son", "brother", "nephew"], "answer": 1, "explain": "Son là con trai.", "hint": "Con của bố mẹ là nam."}, {"q": "Your children's children are your ________.", "options": ["grandchildren", "nephews", "cousins", "parents"], "answer": 0, "explain": "Grandchildren là các cháu nội/ngoại.", "hint": "Cháu của bạn."}, {"q": "A male who is about to get married is the ________.", "options": ["bride", "groom", "husband", "bachelor"], "answer": 1, "explain": "Groom là chú rể.", "hint": "Cô dâu là bride, chú rể là gì?"}, {"q": "My daughter's son is my ________.", "options": ["grandson", "granddaughter", "nephew", "uncle"], "answer": 0, "explain": "Grandson là cháu trai.", "hint": "Con trai của con gái bạn."}, {"q": "A woman who raises a child alone without a partner is a ________ mother.", "options": ["lonely", "single", "only", "half"], "answer": 1, "explain": "Single mother là mẹ đơn thân.", "hint": "Nuôi con một mình."}, {"q": "Your father's brother's child is your ________.", "options": ["cousin", "nephew", "brother", "grandson"], "answer": 0, "explain": "Cousin là anh chị em họ.", "hint": "Con của chú/bác/cậu."}], "travel": [{"q": "If you want to get a cheaper fare, you should book your flight ____.", "options": ["on time", "in advance", "at last", "by hand"], "answer": 1, "explain": "In advance là đặt trước, thường giúp có giá tốt hơn.", "hint": "Đặt trước khi đi."}, {"q": "We were ____ at the airport for five hours because of the heavy fog.", "options": ["delayed", "cancelled", "missed", "arrived"], "answer": 0, "explain": "Delayed là bị hoãn chậm lại.", "hint": "Chuyến bay đến muộn."}, {"q": "I always try to pack ____ so I don't have to pay for extra baggage.", "options": ["heavy", "fast", "light", "hard"], "answer": 2, "explain": "Pack light nghĩa là mang ít đồ.", "hint": "Mang đồ gọn nhẹ."}, {"q": "Could you tell me where the ____ desk is? I need to get my boarding pass.", "options": ["reception", "information", "security", "check-in"], "answer": 3, "explain": "Check-in desk là quầy làm thủ tục bay.", "hint": "Nơi lấy thẻ lên máy bay."}, {"q": "Many tourists prefer to go ____ to see the famous landmarks of the city.", "options": ["sightseeing", "hiking", "sunbathing", "shopping"], "answer": 0, "explain": "Sightseeing là đi tham quan ngắm cảnh.", "hint": "Đi xem địa điểm nổi tiếng."}, {"q": "The hotel room has a stunning ____ of the Eiffel Tower.", "options": ["look", "view", "sight", "scene"], "answer": 1, "explain": "View là tầm nhìn/cảnh nhìn thấy từ một chỗ.", "hint": "Cảnh nhìn thấy từ phòng."}, {"q": "We decided to ____ a car so we could explore the countryside.", "options": ["rent", "borrow", "buy", "take"], "answer": 0, "explain": "Rent là thuê trong thời gian ngắn.", "hint": "Không mua, chỉ thuê."}, {"q": "It's important to have travel ____ in case of emergencies.", "options": ["document", "insurance", "guide", "ticket"], "answer": 1, "explain": "Travel insurance là bảo hiểm du lịch.", "hint": "Bảo hiểm khi đi du lịch."}, {"q": "The local ____ was delicious, especially the seafood paella.", "options": ["cook", "cuisine", "kitchen", "diet"], "answer": 1, "explain": "Cuisine là phong cách ẩm thực của một vùng.", "hint": "Ẩm thực địa phương."}, {"q": "After a long day of walking, we finally reached our ____.", "options": ["route", "journey", "destination", "departure"], "answer": 2, "explain": "Destination là điểm đến cuối cùng.", "hint": "Đích đến."}, {"q": "Do you have any items to ____ at customs?", "options": ["show", "declare", "give", "keep"], "answer": 1, "explain": "Declare là khai báo hàng hóa với hải quan.", "hint": "Khai với hải quan."}, {"q": "The flight ____ was very helpful during the long trip.", "options": ["attendant", "waiter", "driver", "guide"], "answer": 0, "explain": "Flight attendant là tiếp viên hàng không.", "hint": "Người phục vụ trên máy bay."}, {"q": "I'd like a window ____ rather than an aisle one.", "options": ["chair", "place", "seat", "bench"], "answer": 2, "explain": "Seat là ghế ngồi.", "hint": "Chỗ ngồi."}, {"q": "Is ____ included in the price of the hotel room?", "options": ["lunch", "breakfast", "dinner", "snack"], "answer": 1, "explain": "Breakfast là bữa sáng.", "hint": "Bữa ăn đầu ngày."}, {"q": "We stayed at a luxury ____ near the beach.", "options": ["resort", "hostel", "camp", "tent"], "answer": 0, "explain": "Resort là khu nghỉ dưỡng.", "hint": "Chỗ nghỉ cao cấp."}, {"q": "Can you recommend a good local ____ who speaks English?", "options": ["teacher", "guide", "doctor", "chef"], "answer": 1, "explain": "Guide là hướng dẫn viên du lịch.", "hint": "Người dẫn tour."}, {"q": "My passport ____ next month, so I need to renew it.", "options": ["ends", "finishes", "expires", "closes"], "answer": 2, "explain": "Expire là hết hạn hiệu lực.", "hint": "Giấy tờ không còn hiệu lực."}, {"q": "We took a ____ flight to save money for the trip.", "options": ["expensive", "budget", "first-class", "private"], "answer": 1, "explain": "Budget flight là chuyến bay giá rẻ.", "hint": "Phù hợp túi tiền."}, {"q": "Please fasten your ____ during takeoff.", "options": ["bag", "seatbelt", "shoes", "hat"], "answer": 1, "explain": "Seatbelt là dây an toàn.", "hint": "Thắt dây khi cất cánh."}, {"q": "We went on a guided ____ of the ancient castle.", "options": ["walk", "tour", "run", "ride"], "answer": 1, "explain": "Tour là chuyến tham quan có hướng dẫn.", "hint": "Đi theo lịch trình tham quan."}, {"q": "The train ____ from Paris to Rome was very scenic.", "options": ["travel", "trip", "journey", "flight"], "answer": 2, "explain": "Journey nhấn mạnh hành trình đi từ nơi này đến nơi khác.", "hint": "Hành trình dài."}, {"q": "I forgot to bring my ____ to take photos.", "options": ["laptop", "camera", "radio", "watch"], "answer": 1, "explain": "Camera là máy ảnh.", "hint": "Dùng để chụp hình."}, {"q": "Is there a shuttle ____ that goes to the airport?", "options": ["car", "bus", "train", "plane"], "answer": 1, "explain": "Shuttle bus là xe buýt đưa đón.", "hint": "Xe đưa đón khách."}, {"q": "I need to ____ some money into Japanese Yen.", "options": ["change", "exchange", "give", "spend"], "answer": 1, "explain": "Exchange là đổi tiền.", "hint": "Đổi ngoại tệ."}, {"q": "The hotel was fully ____, so we had to look elsewhere.", "options": ["filled", "booked", "taken", "closed"], "answer": 1, "explain": "Fully booked nghĩa là đã kín phòng.", "hint": "Đã đặt hết phòng."}, {"q": "I bought some ____ for my family back home.", "options": ["souvenirs", "tools", "groceries", "furniture"], "answer": 0, "explain": "Souvenirs là quà lưu niệm.", "hint": "Món quà khi đi du lịch."}, {"q": "What time is ____? We need to leave the hotel by 11 AM.", "options": ["check-in", "check-out", "breakfast", "cleaning"], "answer": 1, "explain": "Check-out là thủ tục trả phòng.", "hint": "Rời khách sạn."}, {"q": "We got lost and had to ask for ____.", "options": ["help", "directions", "money", "time"], "answer": 1, "explain": "Directions là chỉ đường/hướng đi.", "hint": "Hỏi đường."}, {"q": "This city has a very exciting ____ with many clubs.", "options": ["nightlife", "morning", "history", "nature"], "answer": 0, "explain": "Nightlife là cuộc sống về đêm.", "hint": "Hoạt động ban đêm."}, {"q": "A ____ is much cheaper than a 5-star hotel.", "options": ["palace", "villa", "hostel", "mansion"], "answer": 2, "explain": "Hostel là nhà nghỉ bình dân.", "hint": "Chỗ ở giá rẻ."}, {"q": "You should always carry a ____ of the city.", "options": ["book", "map", "newspaper", "card"], "answer": 1, "explain": "Map là bản đồ.", "hint": "Để khỏi lạc đường."}, {"q": "The plane will ____ in about ten minutes.", "options": ["jump", "fly", "land", "stop"], "answer": 2, "explain": "Land là hạ cánh.", "hint": "Máy bay chạm đất."}, {"q": "I prefer an ____ seat so I can get up easily.", "options": ["window", "aisle", "middle", "back"], "answer": 1, "explain": "Aisle seat là ghế cạnh lối đi.", "hint": "Ghế gần hành lang."}, {"q": "How much is the bus ____ to the city center?", "options": ["cost", "price", "fare", "bill"], "answer": 2, "explain": "Fare là giá vé phương tiện.", "hint": "Giá vé xe buýt."}, {"q": "Is the tap water ____ to drink in this country?", "options": ["safe", "dangerous", "salty", "cold"], "answer": 0, "explain": "Safe nghĩa là an toàn.", "hint": "Uống có sao không."}, {"q": "We spent the whole afternoon ____ on the beach.", "options": ["sunbathing", "running", "cooking", "working"], "answer": 0, "explain": "Sunbathing là tắm nắng.", "hint": "Nằm dưới nắng."}, {"q": "The hotel provides free ____ for all guests.", "options": ["cars", "Wi-Fi", "clothes", "shoes"], "answer": 1, "explain": "Wi‑Fi là internet không dây.", "hint": "Mạng miễn phí."}, {"q": "We need to ____ our bags before heading to the gate.", "options": ["check", "carry", "sell", "open"], "answer": 0, "explain": "Check bags là ký gửi hành lý.", "hint": "Gửi hành lý."}, {"q": "The mountain ____ was so fresh and clean.", "options": ["water", "air", "soil", "rock"], "answer": 1, "explain": "Air là không khí.", "hint": "Thứ chúng ta hít thở."}, {"q": "It was an ____ trip that I will always remember.", "options": ["boring", "unforgettable", "expensive", "easy"], "answer": 1, "explain": "Unforgettable là không thể nào quên.", "hint": "Rất đáng nhớ."}], "mixed": [{"q": "My father's sister is my ________.", "options": ["uncle", "aunt", "cousin", "niece"], "answer": 1, "explain": "Aunt là cô/dì/bác gái, tức chị/em gái của bố hoặc mẹ.", "hint": "Người này là chị/em gái của bố."}, {"q": "If you want to get a cheaper fare, you should book your flight ____.", "options": ["on time", "in advance", "at last", "by hand"], "answer": 1, "explain": "In advance là đặt trước, thường giúp có giá tốt hơn.", "hint": "Đặt trước khi đi."}, {"q": "Your son's daughter is your ________.", "options": ["grandson", "granddaughter", "niece", "grandmother"], "answer": 1, "explain": "Granddaughter là cháu gái, tức con của con trai hoặc con gái bạn.", "hint": "Đây là con gái của con bạn."}, {"q": "We were ____ at the airport for five hours because of the heavy fog.", "options": ["delayed", "cancelled", "missed", "arrived"], "answer": 0, "explain": "Delayed là bị hoãn chậm lại.", "hint": "Chuyến bay đến muộn."}, {"q": "My mother and father are my ________.", "options": ["relatives", "ancestors", "parents", "partners"], "answer": 2, "explain": "Parents là bố mẹ.", "hint": "Từ chỉ chung bố và mẹ."}, {"q": "I always try to pack ____ so I don't have to pay for extra baggage.", "options": ["heavy", "fast", "light", "hard"], "answer": 2, "explain": "Pack light nghĩa là mang ít đồ.", "hint": "Mang đồ gọn nhẹ."}, {"q": "A person who has no brothers or sisters is an ________ child.", "options": ["alone", "only", "single", "lonely"], "answer": 1, "explain": "Only child là con một.", "hint": "Từ đi với ‘child’ để chỉ con một."}, {"q": "Could you tell me where the ____ desk is? I need to get my boarding pass.", "options": ["reception", "information", "security", "check-in"], "answer": 3, "explain": "Check-in desk là quầy làm thủ tục bay.", "hint": "Nơi lấy thẻ lên máy bay."}, {"q": "My brother's son is my ________.", "options": ["nephew", "niece", "cousin", "stepbrother"], "answer": 0, "explain": "Nephew là cháu trai, con của anh/chị/em ruột.", "hint": "Con trai của anh/em."}, {"q": "Many tourists prefer to go ____ to see the famous landmarks of the city.", "options": ["sightseeing", "hiking", "sunbathing", "shopping"], "answer": 0, "explain": "Sightseeing là đi tham quan ngắm cảnh.", "hint": "Đi xem địa điểm nổi tiếng."}, {"q": "The man who is married to your mother but is not your biological father is your ________.", "options": ["father-in-law", "stepfather", "uncle", "godfather"], "answer": 1, "explain": "Stepfather là bố dượng, không phải bố ruột.", "hint": "Bố kế / bố dượng."}, {"q": "The hotel room has a stunning ____ of the Eiffel Tower.", "options": ["look", "view", "sight", "scene"], "answer": 1, "explain": "View là tầm nhìn/cảnh nhìn thấy từ một chỗ.", "hint": "Cảnh nhìn thấy từ phòng."}, {"q": "If you are married, your wife's mother is your ________.", "options": ["stepmother", "mother-in-law", "godmother", "aunt"], "answer": 1, "explain": "Mother-in-law là mẹ vợ hoặc mẹ chồng.", "hint": "Mẹ của vợ/chồng."}, {"q": "We decided to ____ a car so we could explore the countryside.", "options": ["rent", "borrow", "buy", "take"], "answer": 0, "explain": "Rent là thuê trong thời gian ngắn.", "hint": "Không mua, chỉ thuê."}, {"q": "Your female child is your ________.", "options": ["daughter", "son", "sister", "girl"], "answer": 0, "explain": "Daughter là con gái.", "hint": "Con của bạn là nữ."}, {"q": "It's important to have travel ____ in case of emergencies.", "options": ["document", "insurance", "guide", "ticket"], "answer": 1, "explain": "Travel insurance là bảo hiểm du lịch.", "hint": "Bảo hiểm khi đi du lịch."}, {"q": "My sister and I have the same parents. She is my ________.", "options": ["relative", "sibling", "twin", "cousin"], "answer": 1, "explain": "Sibling là anh chị em ruột.", "hint": "Từ chỉ anh/chị/em cùng bố mẹ."}, {"q": "The local ____ was delicious, especially the seafood paella.", "options": ["cook", "cuisine", "kitchen", "diet"], "answer": 1, "explain": "Cuisine là phong cách ẩm thực của một vùng.", "hint": "Ẩm thực địa phương."}, {"q": "The son of your aunt or uncle is your ________.", "options": ["nephew", "cousin", "brother", "grandson"], "answer": 1, "explain": "Cousin là anh chị em họ.", "hint": "Con của cô/dì/chú/bác."}, {"q": "After a long day of walking, we finally reached our ____.", "options": ["route", "journey", "destination", "departure"], "answer": 2, "explain": "Destination là điểm đến cuối cùng.", "hint": "Đích đến."}, {"q": "My father's father is my ________.", "options": ["grandfather", "grandmother", "grandson", "uncle"], "answer": 0, "explain": "Grandfather là ông nội/ông ngoại.", "hint": "Bố của bố."}, {"q": "Do you have any items to ____ at customs?", "options": ["show", "declare", "give", "keep"], "answer": 1, "explain": "Declare là khai báo hàng hóa với hải quan.", "hint": "Khai với hải quan."}, {"q": "A woman who is about to get married is called a ________.", "options": ["groom", "bride", "wife", "fiancé"], "answer": 1, "explain": "Bride là cô dâu.", "hint": "Chú rể là groom, còn cô dâu là gì?"}, {"q": "The flight ____ was very helpful during the long trip.", "options": ["attendant", "waiter", "driver", "guide"], "answer": 0, "explain": "Flight attendant là tiếp viên hàng không.", "hint": "Người phục vụ trên máy bay."}, {"q": "When a marriage ends legally, the couple gets ________.", "options": ["separated", "engaged", "divorced", "married"], "answer": 2, "explain": "Divorced là ly hôn.", "hint": "Hôn nhân kết thúc hợp pháp."}, {"q": "I'd like a window ____ rather than an aisle one.", "options": ["chair", "place", "seat", "bench"], "answer": 2, "explain": "Seat là ghế ngồi.", "hint": "Chỗ ngồi."}, {"q": "My husband's sister is my ________.", "options": ["sister-in-law", "stepmother", "aunt", "cousin"], "answer": 0, "explain": "Sister-in-law là chị/em dâu hoặc chị/em chồng.", "hint": "Chị/em của chồng/vợ."}, {"q": "Is ____ included in the price of the hotel room?", "options": ["lunch", "breakfast", "dinner", "snack"], "answer": 1, "explain": "Breakfast là bữa sáng.", "hint": "Bữa ăn đầu ngày."}, {"q": "Two children born at the same time to the same mother are ________.", "options": ["couples", "twins", "doubles", "partners"], "answer": 1, "explain": "Twins là anh/chị/em sinh đôi.", "hint": "Sinh cùng lúc từ một mẹ."}, {"q": "We stayed at a luxury ____ near the beach.", "options": ["resort", "hostel", "camp", "tent"], "answer": 0, "explain": "Resort là khu nghỉ dưỡng.", "hint": "Chỗ nghỉ cao cấp."}, {"q": "A girl who has the same father but a different mother is your ________.", "options": ["sister-in-law", "half-sister", "stepsister", "cousin"], "answer": 1, "explain": "Half-sister là chị/em cùng cha khác mẹ.", "hint": "Cùng cha, khác mẹ."}, {"q": "Can you recommend a good local ____ who speaks English?", "options": ["teacher", "guide", "doctor", "chef"], "answer": 1, "explain": "Guide là hướng dẫn viên du lịch.", "hint": "Người dẫn tour."}, {"q": "A man whose wife has died is a ________.", "options": ["widow", "widower", "single", "bachelor"], "answer": 1, "explain": "Widower là người đàn ông góa vợ.", "hint": "Từ cho nam khi vợ đã mất."}, {"q": "My passport ____ next month, so I need to renew it.", "options": ["ends", "finishes", "expires", "closes"], "answer": 2, "explain": "Expire là hết hạn hiệu lực.", "hint": "Giấy tờ không còn hiệu lực."}, {"q": "If your sister has a baby girl, that girl is your ________.", "options": ["nephew", "niece", "cousin", "granddaughter"], "answer": 1, "explain": "Niece là cháu gái, con của anh/chị/em ruột.", "hint": "Con gái của chị/em bạn."}, {"q": "We took a ____ flight to save money for the trip.", "options": ["expensive", "budget", "first-class", "private"], "answer": 1, "explain": "Budget flight là chuyến bay giá rẻ.", "hint": "Phù hợp túi tiền."}, {"q": "A family that includes grandparents, aunts, and uncles is an ________ family.", "options": ["nuclear", "extended", "small", "modern"], "answer": 1, "explain": "Extended family là gia đình mở rộng nhiều thế hệ.", "hint": "Gia đình có ông bà, cô dì chú bác."}, {"q": "Please fasten your ____ during takeoff.", "options": ["bag", "seatbelt", "shoes", "hat"], "answer": 1, "explain": "Seatbelt là dây an toàn.", "hint": "Thắt dây khi cất cánh."}, {"q": "The people you are related to are your ________.", "options": ["friends", "relatives", "neighbors", "colleagues"], "answer": 1, "explain": "Relatives là họ hàng, thân nhân.", "hint": "Từ chỉ người thân trong họ."}, {"q": "We went on a guided ____ of the ancient castle.", "options": ["walk", "tour", "run", "ride"], "answer": 1, "explain": "Tour là chuyến tham quan có hướng dẫn.", "hint": "Đi theo lịch trình tham quan."}]};
-let state = {
-  page: 'home',
-  topic: null,
-  level: 'Cơ bản',
-  idx: 0,
-  score: 0,
-  triedHint: false,
-  selected: null,
-  order: []
+// Initialize Element SDK
+const defaultConfig = {
+  header_title: "English Learning - 120 Questions",
+  header_subtitle: "Select a topic to start learning",
+  back_button_text: "Go Back",
+  choose_mode_text: "Select a quiz type",
+  next_question_text: "Next Question",
+  check_answer_text: "Check Answer",
+  try_again_text: "Try Another Topic",
+  primary_color: "#4361ee",
+  accent_color: "#4cc9f0",
+  success_color: "#48bb78"
 };
 
-const topicInfo = {
+let config = { ...defaultConfig };
+
+async function initElementSDK() {
+  if (!window.elementSdk) return;
+
+  await window.elementSdk.init({
+    defaultConfig,
+    onConfigChange: async (updatedConfig) => {
+      config = updatedConfig;
+      updateUIFromConfig();
+    },
+    mapToCapabilities: () => ({
+      recolorables: [
+        {
+          get: () => config.primary_color || defaultConfig.primary_color,
+          set: (value) => {
+            config.primary_color = value;
+            window.elementSdk.setConfig({ primary_color: value });
+          }
+        },
+        {
+          get: () => config.accent_color || defaultConfig.accent_color,
+          set: (value) => {
+            config.accent_color = value;
+            window.elementSdk.setConfig({ accent_color: value });
+          }
+        },
+        {
+          get: () => config.success_color || defaultConfig.success_color,
+          set: (value) => {
+            config.success_color = value;
+            window.elementSdk.setConfig({ success_color: value });
+          }
+        }
+      ],
+      borderables: [],
+      fontEditable: undefined,
+      fontSizeable: undefined
+    }),
+    mapToEditPanelValues: () => new Map([
+      ["header_title", config.header_title || defaultConfig.header_title],
+      ["header_subtitle", config.header_subtitle || defaultConfig.header_subtitle],
+      ["back_button_text", config.back_button_text || defaultConfig.back_button_text],
+      ["choose_mode_text", config.choose_mode_text || defaultConfig.choose_mode_text],
+      ["next_question_text", config.next_question_text || defaultConfig.next_question_text],
+      ["check_answer_text", config.check_answer_text || defaultConfig.check_answer_text],
+      ["try_again_text", config.try_again_text || defaultConfig.try_again_text],
+      ["primary_color", config.primary_color || defaultConfig.primary_color],
+      ["accent_color", config.accent_color || defaultConfig.accent_color],
+      ["success_color", config.success_color || defaultConfig.success_color]
+    ])
+  });
+
+  updateUIFromConfig();
+}
+
+function updateUIFromConfig() {
+  // Update text content
+  document.getElementById('main-title').textContent = config.header_title || defaultConfig.header_title;
+  const isTopicStep = !document.getElementById('step-topic').classList.contains('hidden');
+  if (isTopicStep) {
+    document.getElementById('sub-title').textContent = config.header_subtitle || defaultConfig.header_subtitle;
+  }
+
+  // Update button texts
+  const backModeBtn = document.getElementById('back-mode-btn');
+  const backQuizBtn = document.getElementById('back-quiz-btn');
+  const checkBtn = document.getElementById('check-btn');
+  const nextBtn = document.getElementById('next-btn');
+  const tryAgainBtn = document.getElementById('try-again-btn');
+  
+  if (backModeBtn) backModeBtn.textContent = config.back_button_text || defaultConfig.back_button_text;
+  if (backQuizBtn) backQuizBtn.textContent = config.back_button_text || defaultConfig.back_button_text;
+  if (checkBtn) checkBtn.textContent = config.check_answer_text || defaultConfig.check_answer_text;
+  if (nextBtn) nextBtn.textContent = config.next_question_text || defaultConfig.next_question_text;
+  if (tryAgainBtn) tryAgainBtn.textContent = config.try_again_text || defaultConfig.try_again_text;
+
+  // Update colors in CSS
+  const primaryColor = config.primary_color || defaultConfig.primary_color;
+  const accentColor = config.accent_color || defaultConfig.accent_color;
+  const successColor = config.success_color || defaultConfig.success_color;
+
+  document.documentElement.style.setProperty('--primary', primaryColor);
+  document.documentElement.style.setProperty('--accent', accentColor);
+  document.documentElement.style.setProperty('--success', successColor);
+}
+
+const stickers = ["🌟", "🔥", "🚀", "💎", "🎯", "🌈", "✅", "🎉", "🍬", "👍", "🏆", "🧠"];
+const praises = ["Nà ná na na giỏi quá ta! 🔥", "U là trời, sao mà đỉnh vậy nè! 😍", "Đỉnh của chóp luôn á nha! 🏔️", "Xuất sắc luôn nà, 10 điểm không có nhưng! 💯", "Ghê chưa ghê chưa, đúng rồi kìa! 😱", "Trời ơi tin được không, đúng rồi đó! 🙌", "Học vậy ai chơi lại bạn nữa, quá dữ! 💪", "Mê nha, trả lời đúng miết hà! 🎊", "Đã giỏi lại còn hay, đúng tiếp rồi! ⭐", "Mát lòng mát dạ ghê, giỏi quá xá! 🌞"];
+const wrongPraises = ["Học vậy mà đòi có bồ hả? Mơ đi diễm! 😅", "Sai rồi kìa, có tập trung không đó bà nội? 🤨", "Kiến thức này đã bị 'bốc hơi' rồi sao? 💨", "Học trước quên sau vầy rồi sao thoát ế nổi? 😬", "Ủa alo? Đáp án này ở đâu ra vậy trời? 🤔", "Nhìn cái đáp án mà tui 'sang chấn tâm lý' luôn á. 😵", "Thôi xong, lại mất gốc rồi đúng không? 📉", "Sai nữa là tui dỗi tui không cho học nữa đâu nha! 😤", "Này là học hay đang ngủ gật vậy hả? 😴", "Bớt mơ mộng lại, tập trung vào mà học đi bạn ơi! 🧠"];
+
+const DATA = {
   family: {
-    title: 'Family Vocabulary',
-    desc: '40 câu về các mối quan hệ trong gia đình.',
-    tag: 'Gia đình',
-    colorClass: 'tag'
+    mc: [
+      {q: "My father's sister is my ________.", options: ["uncle", "aunt", "cousin", "niece"], a: "aunt", ex: "Aunt là cô/dì/bác gái."},
+      {q: "Your son's daughter is your ________.", options: ["grandson", "granddaughter", "niece", "grandmother"], a: "granddaughter", ex: "Granddaughter là cháu gái."},
+      {q: "My mother and father are my ________.", options: ["relatives", "ancestors", "parents", "partners"], a: "parents", ex: "Parents là bố mẹ."},
+      {q: "A person who has no brothers or sisters is an ________ child.", options: ["alone", "only", "single", "lonely"], a: "only", ex: "Only child là con một."},
+      {q: "My brother's son is my ________.", options: ["nephew", "niece", "cousin", "stepbrother"], a: "nephew", ex: "Nephew là cháu trai (con của anh chị em)."},
+      {q: "The man married to your mother but not your biological father is your ________.", options: ["father-in-law", "stepfather", "uncle", "godfather"], a: "stepfather", ex: "Stepfather là bố dượng."},
+      {q: "Your wife's mother is your ________.", options: ["stepmother", "mother-in-law", "godmother", "aunt"], a: "mother-in-law", ex: "Mother-in-law là mẹ vợ."},
+      {q: "Your female child is your ________.", options: ["daughter", "son", "sister", "girl"], a: "daughter", ex: "Daughter là con gái."},
+      {q: "My sister and I have the same parents. She is my ________.", options: ["relative", "sibling", "twin", "cousin"], a: "sibling", ex: "Sibling là anh chị em ruột."},
+      {q: "The son of your aunt or uncle is your ________.", options: ["nephew", "cousin", "brother", "grandson"], a: "cousin", ex: "Cousin là anh chị em họ."},
+      {q: "My father's father is my ________.", options: ["grandfather", "grandmother", "grandson", "uncle"], a: "grandfather", ex: "Grandfather là ông."},
+      {q: "A woman who is about to get married is called a ________.", options: ["groom", "bride", "wife", "fiancé"], a: "bride", ex: "Bride là cô dâu."},
+      {q: "When a marriage ends legally, the couple gets ________.", options: ["separated", "engaged", "divorced", "married"], a: "divorced", ex: "Divorced là ly hôn."},
+      {q: "My husband's sister is my ________.", options: ["sister-in-law", "stepmother", "aunt", "cousin"], a: "sister-in-law", ex: "Sister-in-law là chị/em chồng."},
+      {q: "Two children born at the same time to the same mother are ________.", options: ["couples", "twins", "doubles", "partners"], a: "twins", ex: "Twins là sinh đôi."}
+    ],
+    fill: [
+      {q: "A girl who has the same father but a different mother is your ________.", a: "half-sister", ex: "Chị em cùng cha khác mẹ."},
+      {q: "A man whose wife has died is a ________.", a: "widower", ex: "Người góa vợ."},
+      {q: "If your sister has a baby girl, that girl is your ________.", a: "niece", ex: "Cháu gái (con của anh/chị/em)."},
+      {q: "A family that includes grandparents, aunts, and uncles is an ________ family.", a: "extended", ex: "Gia đình đa thế hệ."},
+      {q: "The people you are related to are your ________.", a: "relatives", ex: "Họ hàng."},
+      {q: "My mother's brother is my ________.", a: "uncle", ex: "Chú/Cậu/Bác trai."},
+      {q: "A male parent is a ________.", a: "father", ex: "Bố/Cha."},
+      {q: "Your brother's wife is your ________.", a: "sister-in-law", ex: "Chị dâu/Em dâu."},
+      {q: "A woman who has never been married is ________.", a: "single", ex: "Độc thân."},
+      {q: "My grandfather's wife is my ________.", a: "grandmother", ex: "Bà nội/ngoại."},
+      {q: "A ________ family consists of only parents and children.", a: "nuclear", ex: "Gia đình hạt nhân."},
+      {q: "The daughter of your step-parent is your ________.", a: "stepsister", ex: "Con gái của bố/mẹ kế."},
+      {q: "My son's wife is my ________.", a: "daughter-in-law", ex: "Con dâu."}
+    ],
+    trans: [
+      {q: "Dịch: 'Tôi có một gia đình lớn.'", a: "I have a big family", ex: "Gia đình lớn = Big family."},
+      {q: "Dịch: 'Bố tôi là một người đàn ông tốt.'", a: "My father is a good man", ex: "Người đàn ông tốt = Good man."},
+      {q: "Dịch: 'Họ là anh em sinh đôi.'", a: "They are twins", ex: "Sinh đôi = Twins."},
+      {q: "Dịch: 'Cô ấy là con một.'", a: "She is an only child", ex: "Con một = Only child."},
+      {q: "Dịch: 'Chúng tôi là họ hàng.'", a: "We are relatives", ex: "Họ hàng = Relatives."},
+      {q: "Dịch: 'Đó là mẹ kế của tôi.'", a: "That is my stepmother", ex: "Mẹ kế = Stepmother."},
+      {q: "Dịch: 'Cháu trai tôi rất thông minh.'", a: "My nephew is very smart", ex: "Cháu trai = Nephew."},
+      {q: "Dịch: 'Anh rể tôi là bác sĩ.'", a: "My brother-in-law is a doctor", ex: "Anh rể = Brother-in-law."},
+      {q: "Dịch: 'Bà tôi kể chuyện rất hay.'", a: "My grandmother tells great stories", ex: "Kể chuyện hay = Tell great stories."},
+      {q: "Dịch: 'Bạn có anh chị em ruột không?'", a: "Do you have any siblings", ex: "Anh chị em ruột = Siblings."},
+      {q: "Dịch: 'Chú rể trông rất hạnh phúc.'", a: "The groom looks very happy", ex: "Chú rể = Groom."},
+      {q: "Dịch: 'Họ đã đính hôn tháng trước.'", a: "They got engaged last month", ex: "Đính hôn = Get engaged."}
+    ]
   },
   travel: {
-    title: 'Travel Vocabulary',
-    desc: '40 câu từ vựng du lịch, khách sạn, sân bay.',
-    tag: 'Du lịch',
-    colorClass: 'tag purple'
+    mc: [
+      {q: "To get a cheaper fare, you should book your flight ____.", options: ["on time", "in advance", "at last", "by hand"], a: "in advance", ex: "In advance: đặt trước."},
+      {q: "We were ____ at the airport for 5 hours because of the fog.", options: ["delayed", "cancelled", "missed", "arrived"], a: "delayed", ex: "Delayed: bị hoãn."},
+      {q: "I always try to pack ____ so I don't have to pay extra.", options: ["heavy", "fast", "light", "hard"], a: "light", ex: "Pack light: mang hành lý nhẹ."},
+      {q: "Could you tell me where the ____ desk is?", options: ["reception", "information", "security", "check-in"], a: "check-in", ex: "Check-in desk: quầy làm thủ tục."},
+      {q: "Many tourists go ____ to see famous landmarks.", options: ["sightseeing", "hiking", "sunbathing", "shopping"], a: "sightseeing", ex: "Sightseeing: ngắm cảnh."},
+      {q: "The hotel room has a stunning ____ of the sea.", options: ["look", "view", "sight", "scene"], a: "view", ex: "View: tầm nhìn."},
+      {q: "We decided to ____ a car to explore the city.", options: ["rent", "borrow", "buy", "take"], a: "rent", ex: "Rent: thuê."},
+      {q: "It's important to have travel ____.", options: ["document", "insurance", "guide", "ticket"], a: "insurance", ex: "Insurance: bảo hiểm."},
+      {q: "The local ____ was delicious.", options: ["cook", "cuisine", "kitchen", "diet"], a: "cuisine", ex: "Cuisine: ẩm thực."},
+      {q: "After a long day, we finally reached our ____.", options: ["route", "journey", "destination", "departure"], a: "destination", ex: "Destination: điểm đến."},
+      {q: "Do you have any items to ____ at customs?", options: ["show", "declare", "give", "keep"], a: "declare", ex: "Declare: khai báo."},
+      {q: "The flight ____ was very helpful.", options: ["attendant", "waiter", "driver", "guide"], a: "attendant", ex: "Flight attendant: tiếp viên."},
+      {q: "I'd like a window ____ rather than an aisle one.", options: ["chair", "place", "seat", "bench"], a: "seat", ex: "Seat: chỗ ngồi."},
+      {q: "Is ____ included in the hotel room price?", options: ["lunch", "breakfast", "dinner", "snack"], a: "breakfast", ex: "Breakfast: bữa sáng."},
+      {q: "We stayed at a luxury ____ near the beach.", options: ["resort", "hostel", "camp", "tent"], a: "resort", ex: "Resort: khu nghỉ dưỡng."}
+    ],
+    fill: [
+      {q: "My passport ________ next month, so I need to renew it.", a: "expires", ex: "Hết hạn."},
+      {q: "We took a ________ flight to save money.", a: "budget", ex: "Chuyến bay giá rẻ."},
+      {q: "Please fasten your ________ during takeoff.", a: "seatbelt", ex: "Dây an toàn."},
+      {q: "We went on a guided ________ of the castle.", a: "tour", ex: "Chuyến tham quan."},
+      {q: "The train ________ from Paris to Rome was scenic.", a: "journey", ex: "Hành trình."},
+      {q: "I forgot to bring my ________ to take photos.", a: "camera", ex: "Máy ảnh."},
+      {q: "Is there a shuttle ________ that goes to the airport?", a: "bus", ex: "Xe buýt đưa đón."},
+      {q: "I need to ________ some money into Yen.", a: "exchange", ex: "Đổi tiền."},
+      {q: "The hotel was fully ________.", a: "booked", ex: "Đã đặt hết phòng."},
+      {q: "I bought some ________ for my family.", a: "souvenirs", ex: "Quà lưu niệm."},
+      {q: "What time is ________? (Trả phòng)", a: "check-out", ex: "Trả phòng khách sạn."},
+      {q: "We got lost and had to ask for ________.", a: "directions", ex: "Chỉ đường."},
+      {q: "This city has an exciting ________.", a: "nightlife", ex: "Cuộc sống về đêm."}
+    ],
+    trans: [
+      {q: "Dịch: 'Làm ơn cho tôi xem hộ chiếu.'", a: "Please show me your passport", ex: "Hộ chiếu = Passport."},
+      {q: "Dịch: 'Chuyến bay bị hoãn 2 tiếng.'", a: "The flight is delayed for 2 hours", ex: "Bị hoãn = Delayed."},
+      {q: "Dịch: 'Tôi muốn đặt một phòng đơn.'", a: "I would like to book a single room", ex: "Phòng đơn = Single room."},
+      {q: "Dịch: 'Ga tàu ở đâu?'", a: "Where is the train station", ex: "Ga tàu = Train station."},
+      {q: "Dịch: 'Chúng tôi đi tham quan bằng xe buýt.'", a: "We go sightseeing by bus", ex: "Tham quan = Sightseeing."},
+      {q: "Dịch: 'Giá vé là bao nhiêu?'", a: "How much is the fare", ex: "Giá vé = Fare."},
+      {q: "Dịch: 'Tôi bị mất hành lý.'", a: "I lost my luggage", ex: "Hành lý = Luggage."},
+      {q: "Dịch: 'Thủ tục nhập cảnh ở đâu?'", a: "Where is the immigration control", ex: "Nhập cảnh = Immigration."},
+      {q: "Dịch: 'Khách sạn có wifi miễn phí không?'", a: "Does the hotel have free wifi", ex: "Wifi miễn phí = Free wifi."},
+      {q: "Dịch: 'Hãy thắt dây an toàn.'", a: "Please fasten your seatbelt", ex: "Thắt dây an toàn = Fasten seatbelt."},
+      {q: "Dịch: 'Tôi muốn đổi tiền.'", a: "I want to exchange money", ex: "Đổi tiền = Exchange money."},
+      {q: "Dịch: 'Chúc bạn có một chuyến đi tốt đẹp.'", a: "Have a nice trip", ex: "Chuyến đi tốt đẹp = Nice trip."}
+    ]
   },
-  mixed: {
-    title: 'Mixed Review',
-    desc: '40 câu ôn tập trộn giữa Family và Travel.',
-    tag: 'Tổng hợp',
-    colorClass: 'tag green'
+  work: {
+    mc: [
+      {q: "A person you work with is a...", options: ["colleague", "friend", "partner", "assistant"], a: "colleague", ex: "Colleague: đồng nghiệp."},
+      {q: "The money you receive monthly for work is...", options: ["profit", "salary", "fare", "tip"], a: "salary", ex: "Salary: lương tháng."},
+      {q: "If you work more than normal hours, it's...", options: ["part-time", "overtime", "homework", "house-work"], a: "overtime", ex: "Overtime: làm thêm giờ."},
+      {q: "The person in charge of a team is a...", options: ["trainee", "manager", "client", "customer"], a: "manager", ex: "Manager: quản lý."},
+      {q: "When you reach 65, you usually...", options: ["promote", "retire", "quit", "apply"], a: "retire", ex: "Retire: nghỉ hưu."},
+      {q: "The final date to finish a task is the...", options: ["timeline", "deadline", "start date", "lifetime"], a: "deadline", ex: "Deadline: hạn chót."},
+      {q: "If you don't have a job, you are...", options: ["busy", "unemployed", "hardworking", "skilled"], a: "unemployed", ex: "Unemployed: thất nghiệp."},
+      {q: "A ________ job is 40 hours a week.", options: ["part-time", "full-time", "temporary", "freelance"], a: "full-time", ex: "Full-time: toàn thời gian."},
+      {q: "To ________ someone is to give them a job.", options: ["fire", "hire", "lose", "miss"], a: "hire", ex: "Hire: thuê/tuyển dụng."},
+      {q: "If you are unhappy with your job, you might...", options: ["promote", "resign", "hire", "retire"], a: "resign", ex: "Resign: từ chức/thôi việc."},
+      {q: "A person who helps a doctor is a...", options: ["nurse", "teacher", "pilot", "chef"], a: "nurse", ex: "Nurse: y tá."},
+      {q: "Where do scientists work?", options: ["office", "laboratory", "farm", "court"], a: "laboratory", ex: "Laboratory: phòng thí nghiệm."},
+      {q: "A person who designs buildings is an...", options: ["architect", "artist", "engineer", "author"], a: "architect", ex: "Architect: kiến trúc sư."},
+      {q: "An ________ is a meeting for a job.", options: ["interview", "exam", "appointment", "event"], a: "interview", ex: "Interview: phỏng vấn."},
+      {q: "My brother fixes cars; he is a ________.", options: ["plumber", "mechanic", "carpenter", "welder"], a: "mechanic", ex: "Mechanic: thợ cơ khí/sửa máy."}
+    ],
+    fill: [
+      {q: "I need to update my ________ before applying.", a: "cv", ex: "CV: sơ yếu lý lịch."},
+      {q: "She got a ________ because she worked hard.", a: "promotion", ex: "Promotion: thăng chức."},
+      {q: "A ________ works for themselves.", a: "freelancer", ex: "Freelancer: người làm tự do."},
+      {q: "We have a staff ________ every Monday morning.", a: "meeting", ex: "Meeting: cuộc họp."},
+      {q: "The ________ told us to finish the report.", a: "boss", ex: "Boss: sếp."},
+      {q: "He works in the marketing ________.", a: "department", ex: "Department: phòng ban."},
+      {q: "I'm currently doing an ________ at a tech company.", a: "internship", ex: "Internship: thực tập."},
+      {q: "The company provides health ________.", a: "insurance", ex: "Insurance: bảo hiểm."},
+      {q: "A ________ fixes broken water pipes.", a: "plumber", ex: "Plumber: thợ sửa ống nước."},
+      {q: "You should arrive for your interview ________.", a: "on time", ex: "Đúng giờ."},
+      {q: "My father is ________; he owns a shop.", a: "self-employed", ex: "Tự làm chủ."},
+      {q: "She has a very stressful ________.", a: "career", ex: "Sự nghiệp."},
+      {q: "I get a 30-minute lunch ________.", a: "break", ex: "Nghỉ giải lao."}
+    ],
+    trans: [
+      {q: "Dịch: 'Bạn làm nghề gì?'", a: "What is your job", ex: "Nghề nghiệp = Job."},
+      {q: "Dịch: 'Tôi đang tìm việc.'", a: "I am looking for a job", ex: "Tìm việc = Look for a job."},
+      {q: "Dịch: 'Anh ấy là một giáo viên giỏi.'", a: "He is a good teacher", ex: "Giáo viên giỏi = Good teacher."},
+      {q: "Dịch: 'Tôi làm việc từ 8 giờ sáng đến 5 giờ chiều.'", a: "I work from 8 am to 5 pm", ex: "Work from... to..."},
+      {q: "Dịch: 'Đồng nghiệp của tôi rất thân thiện.'", a: "My colleagues are very friendly", ex: "Đồng nghiệp = Colleagues."},
+      {q: "Dịch: 'Công ty này rất lớn.'", a: "This company is very big", ex: "Công ty = Company."},
+      {q: "Dịch: 'Hôm nay tôi bận.'", a: "I am busy today", ex: "Bận = Busy."},
+      {q: "Dịch: 'Tôi muốn xin nghỉ phép.'", a: "I want to take a leave of absence", ex: "Nghỉ phép = Leave of absence."},
+      {q: "Dịch: 'Hợp đồng sẽ hết hạn vào tháng tới.'", a: "The contract will expire next month", ex: "Hết hạn = Expire."},
+      {q: "Dịch: 'Cô ấy làm việc bán thời gian.'", a: "She works part-time", ex: "Bán thời gian = Part-time."},
+      {q: "Dịch: 'Bạn đã có kinh nghiệm chưa?'", a: "Do you have any experience", ex: "Kinh nghiệm = Experience."},
+      {q: "Dịch: 'Nơi làm việc của tôi rất hiện đại.'", a: "My workplace is very modern", ex: "Nơi làm việc = Workplace."}
+    ]
   }
 };
 
-function shuffle(array) {
-  const a = array.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+function createConfetti(emoji) {
+  for (let i = 0; i < 8; i++) {
+    const confetti = document.createElement('div');
+    confetti.className = 'confetti';
+    confetti.textContent = emoji;
+    confetti.style.left = Math.random() * 100 + '%';
+    confetti.style.animationDelay = Math.random() * 0.3 + 's';
+    document.body.appendChild(confetti);
+    setTimeout(() => confetti.remove(), 3000);
   }
-  return a;
 }
 
-function setPage(page) {
-  state.page = page;
-  render();
+function displayScore() {
+  const scoreDisplay = document.createElement('div');
+  scoreDisplay.className = 'score-display';
+  scoreDisplay.textContent = `+1`;
+  document.body.appendChild(scoreDisplay);
+  setTimeout(() => scoreDisplay.remove(), 1200);
 }
 
-function startQuiz(topic, level) {
-  state.topic = topic;
-  state.level = level;
-  state.idx = 0;
-  state.score = 0;
-  state.triedHint = false;
-  state.selected = null;
-  state.order = shuffle(QUIZ_DATA[topic]).slice(0, 40);
-  setPage('quiz');
-}
-
-function renderHome() {
-  const root = document.getElementById('root');
-  root.innerHTML = `
-    <div class="card">
-      <div class="between">
-        <div>
-          <div class="pill">Trang 1 • Giới thiệu</div>
-          <h2 style="margin:12px 0 8px;">Chọn chủ đề và cấp độ</h2>
-          <p class="muted" style="margin:0; line-height:1.6;">
-            Mỗi bài có 40 câu. Làm đúng sẽ có lời khen và hiệu ứng sticker; làm sai sẽ có giải thích rõ vì sao sai;
-            chưa biết thì bấm gợi ý tiếng Việt để biết cách làm.
-          </p>
-        </div>
-      </div>
-
-      <div class="grid">
-        <div class="card topic" onclick="openTopic('family')">
-          <span class="${topicInfo.family.colorClass}">${topicInfo.family.tag}</span>
-          <h3>${topicInfo.family.title}</h3>
-          <p class="muted">${topicInfo.family.desc}</p>
-        </div>
-        <div class="card topic" onclick="openTopic('travel')">
-          <span class="${topicInfo.travel.colorClass}">${topicInfo.travel.tag}</span>
-          <h3>${topicInfo.travel.title}</h3>
-          <p class="muted">${topicInfo.travel.desc}</p>
-        </div>
-        <div class="card topic" onclick="openTopic('mixed')">
-          <span class="${topicInfo.mixed.colorClass}">${topicInfo.mixed.tag}</span>
-          <h3>${topicInfo.mixed.title}</h3>
-          <p class="muted">${topicInfo.mixed.desc}</p>
-        </div>
-      </div>
-
-      <div id="topicDetail" style="margin-top:16px;"></div>
-    </div>
-  `;
-}
-
-function openTopic(topic) {
-  state.topic = topic;
-  const d = topicInfo[topic];
-  document.getElementById('topicDetail').innerHTML = `
-    <div class="card" style="background:#f8fafc;">
-      <h3 style="margin-top:0;">${d.title}</h3>
-      <p class="muted">${d.desc}</p>
-      <div class="row">
-        <button class="btn btn-primary" onclick="startQuiz('${topic}', 'Cơ bản')">Cấp độ 1: Cơ bản</button>
-        <button class="btn btn-soft" onclick="startQuiz('${topic}', 'Trung bình')">Cấp độ 2: Trung bình</button>
-        <button class="btn btn-outline" onclick="startQuiz('${topic}', 'Thử thách')">Cấp độ 3: Thử thách</button>
-      </div>
-      <p class="muted" style="margin-bottom:0; margin-top:12px;">
-        Cơ bản: gợi ý luôn sẵn sàng. Trung bình: giải thích đầy đủ hơn. Thử thách: ít trợ giúp hơn.
-      </p>
-    </div>
-  `;
-}
-
-function currentQ() {
-  return state.order[state.idx];
-}
-
-function progressPercent() {
-  return Math.round((state.idx / state.order.length) * 100);
-}
-
-function renderQuiz() {
-  const q = currentQ();
-  const root = document.getElementById('root');
-  const showHintBtn = state.level !== 'Thử thách' || state.triedHint;
-  root.innerHTML = `
-    <div class="card">
-      <div class="between">
-        <div>
-          <div class="pill">${topicInfo[state.topic].title} • ${state.level}</div>
-          <h2 style="margin:12px 0 6px;">Câu ${state.idx + 1} / ${state.order.length}</h2>
-          <div class="muted">Điểm hiện tại: <b>${state.score}</b></div>
-        </div>
-        <button class="btn btn-ghost" onclick="setPage('home')">⬅ Về trang chủ</button>
-      </div>
-
-      <div class="progress"><div class="bar" style="width:${progressPercent()}%"></div></div>
-
-      <div class="qbox">
-        <h3 style="margin-top:0; line-height:1.5;">${q.q}</h3>
-        <div class="options" id="options">
-          ${q.options.map((opt, i) => `<button class="opt" onclick="answer(${i})">${String.fromCharCode(65+i)}. ${opt}</button>`).join('')}
-        </div>
-
-        <div class="row" style="margin-top:14px;">
-          ${showHintBtn ? `<button class="btn btn-soft" onclick="showHint()">💡 Gợi ý tiếng Việt</button>` : ''}
-          <button class="btn btn-outline" onclick="dontKnow()">😵 Không biết</button>
-          <button class="btn btn-ghost" onclick="skipQuestion()">Bỏ qua</button>
-        </div>
-
-        <div id="feedbackArea"></div>
-      </div>
-    </div>
-  `;
-}
-
-function showHint() {
-  const q = currentQ();
-  state.triedHint = true;
-  const fb = document.getElementById('feedbackArea');
-  fb.innerHTML = `
-    <div class="feedback hint">
-      💡 Gợi ý: ${q.hint}<br>
-      Cách làm: tìm từ khóa chính trong câu rồi đối chiếu nghĩa tiếng Việt.
-    </div>
-  `;
-}
-
-function markOptions(correctIndex, chosenIndex) {
-  const buttons = document.querySelectorAll('.opt');
-  buttons.forEach((btn, i) => {
-    btn.disabled = true;
-    if (i === correctIndex) btn.classList.add('correct');
-    if (i === chosenIndex && chosenIndex !== correctIndex) btn.classList.add('wrong');
-  });
-}
-
-function confetti() {
-  const root = document.getElementById('confetti');
-  root.innerHTML = '';
-  const icons = ['🎉','✨','🌟','💖','🏆','🔥'];
-  for (let i = 0; i < 28; i++) {
-    const span = document.createElement('span');
-    span.textContent = icons[Math.floor(Math.random() * icons.length)];
-    span.style.left = Math.random() * 100 + 'vw';
-    span.style.animationDelay = (Math.random() * 0.3) + 's';
-    span.style.fontSize = (16 + Math.random() * 18) + 'px';
-    root.appendChild(span);
+function createSadEmojis() {
+  const sadEmojis = ['😢', '😭', '🤦‍♂️'];
+  for (let i = 0; i < 6; i++) {
+    const emoji = document.createElement('div');
+    emoji.className = 'sad-emoji';
+    emoji.textContent = sadEmojis[i % 3];
+    emoji.style.left = Math.random() * 100 + '%';
+    emoji.style.animationDelay = Math.random() * 0.3 + 's';
+    document.body.appendChild(emoji);
+    setTimeout(() => emoji.remove(), 3500);
   }
-  setTimeout(() => root.innerHTML = '', 2200);
 }
 
-function feedbackBox(type, html) {
-  document.getElementById('feedbackArea').innerHTML = `
-    <div class="feedback ${type}">${html}</div>
-  `;
+function handleInputKeypress(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    checkAnswer();
+  }
 }
 
-function advance() {
-  setTimeout(() => {
-    state.idx += 1;
-    state.selected = null;
-    state.triedHint = false;
-    if (state.idx >= state.order.length) renderResult();
-    else renderQuiz();
-  }, 1300);
+function selectTopic(topic) {
+  currentTopic = topic;
+  document.getElementById('step-topic').classList.add('hidden');
+  document.getElementById('step-mode').classList.remove('hidden');
+  document.getElementById('sub-title').innerText = config.choose_mode_text || defaultConfig.choose_mode_text;
 }
 
-function answer(index) {
-  const q = currentQ();
-  state.selected = index;
-  const correct = q.answer;
-  markOptions(correct, index);
+function startQuiz(mode) {
+  currentMode = mode;
+  activeQuestions = DATA[currentTopic][mode];
+  currentIndex = 0;
+  score = 0;
+  wrongAnswers = [];
 
-  if (index === correct) {
-    state.score += 1;
-    confetti();
-    feedbackBox('good', `✅ Đúng rồi!<br><b>Giải thích:</b> ${q.explain}<br><span class="badge">Sticker: 🌟 Tuyệt vời, làm rất tốt!</span>`);
+  document.getElementById('step-mode').classList.add('hidden');
+  document.getElementById('quiz-area').classList.remove('hidden');
+  
+  const modeNames = { 'mc': "Multiple Choice", 'fill': "Fill the Blank", 'trans': "Translation" };
+  document.getElementById('main-title').innerText = modeNames[mode];
+  document.getElementById('score-display').textContent = `0 / ${activeQuestions.length}`;
+
+  showQuestion();
+}
+
+function goBack() {
+  document.getElementById('step-mode').classList.add('hidden');
+  document.getElementById('step-topic').classList.remove('hidden');
+  document.getElementById('sub-title').innerText = config.header_subtitle || defaultConfig.header_subtitle;
+}
+
+function exitQuiz() {
+  document.getElementById('quiz-area').classList.add('hidden');
+  document.getElementById('step-mode').classList.remove('hidden');
+  document.getElementById('sub-title').innerText = config.choose_mode_text || defaultConfig.choose_mode_text;
+}
+
+function showQuestion() {
+  const q = activeQuestions[currentIndex];
+  const container = document.getElementById('question-container');
+  const inputArea = document.getElementById('input-area');
+  const feedback = document.getElementById('feedback');
+  const nextBtn = document.getElementById('next-btn');
+
+  feedback.className = "feedback";
+  nextBtn.classList.add('hidden');
+
+  document.getElementById('progress').style.width = ((currentIndex) / activeQuestions.length * 100) + "%";
+  document.getElementById('score-display').textContent = `${score} / ${activeQuestions.length}`;
+
+  if (currentMode === 'mc') {
+    inputArea.classList.add('hidden');
+    container.innerHTML = `<h3>${q.q}</h3><div class="opt-list">${q.options.map((opt) =>
+      `<div class="opt-item" onclick="checkMC('${opt}')">${opt}</div>`).join('')}</div>`;
   } else {
-    feedbackBox('bad', `❌ Chưa đúng.<br><b>Vì sao sai:</b> Bạn chọn đáp án chưa khớp nghĩa của câu.<br><b>Đáp án đúng:</b> ${String.fromCharCode(65 + correct)}. ${q.options[correct]}<br><b>Giải thích:</b> ${q.explain}<br><b>Cách làm:</b> Nhìn từ khóa chính rồi đối chiếu nghĩa tiếng Việt.`);
+    inputArea.classList.remove('hidden');
+    container.innerHTML = `<h3>${q.q}</h3>`;
+    document.getElementById('user-answer').value = "";
+    document.getElementById('user-answer').focus();
   }
-  advance();
 }
 
-function dontKnow() {
-  const q = currentQ();
-  state.triedHint = true;
-  feedbackBox('hint', `💡 Gợi ý tiếng Việt: ${q.hint}<br><br>Cách làm: đọc lại câu, tìm quan hệ (gia đình / sân bay / khách sạn / chuyến đi) rồi chọn từ phù hợp nhất.`);
+function checkMC(selected) {
+  const q = activeQuestions[currentIndex];
+  const items = document.querySelectorAll('.opt-item');
+  const feedback = document.getElementById('feedback');
+
+  items.forEach(item => {
+    item.classList.add('answered');
+    if (item.innerText === q.a) item.classList.add('correct');
+    else if (item.innerText === selected && selected !== q.a) item.classList.add('wrong');
+  });
+
+  if (selected === q.a) {
+    score++;
+    const sticker = stickers[Math.floor(Math.random() * stickers.length)];
+    const praise = praises[Math.floor(Math.random() * praises.length)];
+    createConfetti(sticker);
+    displayScore();
+    feedback.innerHTML = `<span style="font-size: 2.5rem; display: block; margin-bottom: 8px;">${sticker}</span><b>${praise}</b>`;
+    feedback.className = "feedback show correct-msg";
+  } else {
+    createSadEmojis();
+    const wrongPraise = wrongPraises[Math.floor(Math.random() * wrongPraises.length)];
+    wrongAnswers.push({
+      question: q.q,
+      userAnswer: selected,
+      correctAnswer: q.a,
+      explanation: q.ex
+    });
+    feedback.innerHTML = `<span style="font-size: 2.5rem; display: block; margin-bottom: 8px;">😢😭🤦‍♂️</span><b>${wrongPraise}</b> Đáp án là: <b>${q.a}</b><br><small>💡 ${q.ex}</small>`;
+    feedback.className = "feedback show wrong-msg";
+  }
+  document.getElementById('next-btn').classList.remove('hidden');
 }
 
-function skipQuestion() {
-  const q = currentQ();
-  feedbackBox('hint', `⏭ Bạn đã bỏ qua câu này.<br><b>Đáp án đúng:</b> ${String.fromCharCode(65 + q.answer)}. ${q.options[q.answer]}<br><b>Giải thích:</b> ${q.explain}`);
-  advance();
+function checkAnswer() {
+  const q = activeQuestions[currentIndex];
+  const userAns = document.getElementById('user-answer').value.trim().toLowerCase();
+  const correctAns = q.a.toLowerCase().replace(/[.,]/g, '');
+  const feedback = document.getElementById('feedback');
+
+  if (userAns === correctAns) {
+    score++;
+    const sticker = stickers[Math.floor(Math.random() * stickers.length)];
+    const praise = praises[Math.floor(Math.random() * praises.length)];
+    createConfetti(sticker);
+    displayScore();
+    feedback.innerHTML = `<span style="font-size: 2.5rem; display: block; margin-bottom: 8px;">${sticker}</span><b>${praise}</b>`;
+    feedback.className = "feedback show correct-msg";
+  } else {
+    createSadEmojis();
+    const wrongPraise = wrongPraises[Math.floor(Math.random() * wrongPraises.length)];
+    wrongAnswers.push({
+      question: q.q,
+      userAnswer: userAns,
+      correctAnswer: q.a,
+      explanation: q.ex
+    });
+    feedback.innerHTML = `<span style="font-size: 2.5rem; display: block; margin-bottom: 8px;">😢😭🤦‍♂️</span><b>${wrongPraise}</b> Đáp án là: <b>${q.a}</b><br><small>💡 ${q.ex}</small>`;
+    feedback.className = "feedback show wrong-msg";
+  }
+  document.getElementById('next-btn').classList.remove('hidden');
 }
 
-function renderResult() {
-  const root = document.getElementById('root');
-  const percent = Math.round((state.score / state.order.length) * 100);
-  let badge = 'Tiếp tục luyện nhé';
-  if (percent >= 90) badge = 'Siêu đỉnh!';
-  else if (percent >= 75) badge = 'Làm rất tốt!';
-  else if (percent >= 50) badge = 'Khá ổn, cố thêm chút nữa!';
-  root.innerHTML = `
-    <div class="card" style="text-align:center;">
-      <div class="pill" style="margin-bottom:10px;">Kết quả cuối</div>
-      <h2 style="margin-top:8px;">🎉 Hoàn thành bài quiz!</h2>
-      <p class="muted">Bạn đã làm đúng <b>${state.score}/${state.order.length}</b> câu (${percent}%).</p>
-      <div class="badge">${badge}</div>
-      <div style="margin-top:18px; font-size: 44px;">${percent >= 90 ? '🏆🌟🎉' : percent >= 75 ? '🌟🎉' : percent >= 50 ? '👏✨' : '💪📘'}</div>
-      <p class="muted" style="max-width: 680px; margin: 12px auto 0; line-height:1.6;">
-        Nếu muốn luyện lại, hãy chọn một chủ đề khác hoặc đổi cấp độ để học sâu hơn.
-      </p>
-      <div class="row" style="justify-content:center; margin-top:16px;">
-        <button class="btn btn-primary" onclick="setPage('home')">Làm lại từ đầu</button>
-      </div>
-    </div>
+function nextQuestion() {
+  currentIndex++;
+  if (currentIndex < activeQuestions.length) {
+    showQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById('quiz-area').classList.add('hidden');
+  document.getElementById('result-area').classList.remove('hidden');
+  
+  const total = activeQuestions.length;
+  const percent = Math.round((score / total) * 100);
+  
+  document.getElementById('final-score').innerText = `${score} / ${total}`;
+  
+  let message = "";
+  if (percent === 100) message = "🏆 Perfect score! Outstanding!";
+  else if (percent >= 80) message = "🎉 Excellent work!";
+  else if (percent >= 60) message = "👍 Good job! Keep practicing.";
+  else message = "📚 Keep learning! You'll improve.";
+  
+  document.getElementById('result-message').innerText = message;
+  document.getElementById('sub-title').innerText = "Quiz Results";
+
+  // Display detailed stats
+  const statsContent = document.getElementById('stats-content');
+  statsContent.innerHTML = `
+    <div><strong>✅ Câu đúng:</strong> ${score}/${total}</div>
+    <div><strong>❌ Câu sai:</strong> ${wrongAnswers.length}/${total}</div>
+    <div><strong>📈 Tỷ lệ chính xác:</strong> ${percent}%</div>
   `;
-  confetti();
+
+  // Display improvement tips
+  const improvementTips = document.getElementById('improvement-tips');
+  let tipsHTML = '<strong>💡 Những điểm cần cải thiện:</strong><br>';
+  
+  if (wrongAnswers.length > 0) {
+    tipsHTML += '<div style="margin-top: 10px;">';
+    wrongAnswers.forEach((wrong, idx) => {
+      tipsHTML += `
+        <div style="margin-bottom: 12px; padding: 10px; background: #fff5f5; border-radius: 8px;">
+          <div><strong>Câu ${idx + 1}:</strong> ${wrong.question}</div>
+          <div style="color: #e53e3e; margin-top: 5px;">❌ Bạn trả lời: <em>${wrong.userAnswer}</em></div>
+          <div style="color: #22863a; margin-top: 5px;">✅ Đáp án đúng: <strong>${wrong.correctAnswer}</strong></div>
+          <div style="color: #666; margin-top: 5px; font-style: italic;">💬 ${wrong.explanation}</div>
+        </div>
+      `;
+    });
+    tipsHTML += '</div>';
+    
+    tipsHTML += '<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0;"><strong>🎯 Gợi ý cải thiện:</strong><ul style="margin: 10px 0; padding-left: 20px;">';
+    tipsHTML += '<li>Xem lại các câu sai ở trên</li>';
+    tipsHTML += '<li>Học kỹ giải thích cho từng câu</li>';
+    tipsHTML += '<li>Làm lại bài kiểm tra để cải thiện điểm</li>';
+    tipsHTML += '<li>Tập trung vào từ vựng và ngữ pháp còn yếu</li>';
+    tipsHTML += '</ul></div>';
+  } else {
+    tipsHTML += '<div style="color: #22863a; padding: 10px; background: #f0f9ff; border-radius: 8px;">🎊 Bạn làm tuyệt vời! Không có câu nào sai. Hãy thử các chủ đề khác để tiếp tục học!</div>';
+  }
+  
+  improvementTips.innerHTML = tipsHTML;
 }
 
-function render() {
-  if (state.page === 'home') renderHome();
-  else if (state.page === 'quiz') renderQuiz();
-}
-
-render();
-    </script>
-
-    <script>
-    (function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="C7NhJGuu2s-_SLriW7kV_";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
-    </script>
-    </body>
+// Initialize on load
+initElementSDK();
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e4929c5337b9cac',t:'MTc3NDg5NTE5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+<script>
+(function(){if(!window.chatbase||window.chatbase("getState")!=="initialized"){window.chatbase=(...arguments)=>{if(!window.chatbase.q){window.chatbase.q=[]}window.chatbase.q.push(arguments)};window.chatbase=new Proxy(window.chatbase,{get(target,prop){if(prop==="q"){return target.q}return(...args)=>target(prop,...args)}})}const onLoad=function(){const script=document.createElement("script");script.src="https://www.chatbase.co/embed.min.js";script.id="C7NhJGuu2s-_SLriW7kV_";script.domain="www.chatbase.co";document.body.appendChild(script)};if(document.readyState==="complete"){onLoad()}else{window.addEventListener("load",onLoad)}})();
+</script>
+</body>
 </html>
