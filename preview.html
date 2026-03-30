@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Tiếng Anh</title>
+  <style>
+    :root {
+      --bg1: #dbeafe;
+      --bg2: #e9d5ff;
+      --card: rgba(255,255,255,0.94);
+      --text: #1f2937;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --primary2: #7c3aed;
+      --good: #16a34a;
+      --bad: #dc2626;
+      --shadow: 0 20px 45px rgba(31,41,55,.15);
+      --radius: 24px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--bg1), var(--bg2));
+    }
+    .wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+    }
+    .app {
+      width: min(980px, 100%);
+      background: var(--card);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .hero {
+      padding: 28px;
+      background: linear-gradient(135deg, #1d4ed8, #7c3aed);
+      color: white;
+    }
+    .hero h1 { margin: 0 0 8px; font-size: 34px; }
+    .hero p { margin: 0; opacity: .95; line-height: 1.5; }
+    .content { padding: 24px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-top: 14px;
+    }
+    .card {
+      border: 1px solid #e5e7eb;
+      border-radius: 20px;
+      padding: 18px;
+      background: white;
+      box-shadow: 0 8px 18px rgba(0,0,0,.05);
+    }
+    .topic {
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .topic:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 26px rgba(0,0,0,.10);
+    }
+    .tag {
+      display: inline-block;
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .tag.purple { background: #f5f3ff; color: #7c3aed; }
+    .tag.green { background: #ecfdf5; color: #059669; }
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .15s ease, opacity .15s ease, background .15s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary2)); color: white; }
+    .btn-soft { background: #eef2ff; color: #3730a3; }
+    .btn-outline { background: white; border: 1px solid #cbd5e1; color: #111827; }
+    .btn-good { background: #dcfce7; color: #166534; }
+    .btn-bad { background: #fee2e2; color: #991b1b; }
+    .btn-ghost { background: #f8fafc; color: #334155; }
+    .muted { color: var(--muted); }
+    .row { display:flex; flex-wrap: wrap; gap: 10px; }
+    .between { display:flex; justify-content: space-between; align-items:center; gap: 10px; flex-wrap:wrap; }
+    .qbox {
+      padding: 20px;
+      border-radius: 20px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      box-shadow: 0 8px 18px rgba(0,0,0,.05);
+    }
+    .options {
+      display:grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .opt {
+      width:100%;
+      text-align:left;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid #dbe3ea;
+      background: #f8fafc;
+      cursor: pointer;
+      transition: all .16s ease;
+      font-size: 16px;
+    }
+    .opt:hover { background: #eef2ff; border-color: #c7d2fe; }
+    .opt.correct { background: #dcfce7; border-color:#86efac; color:#166534; }
+    .opt.wrong { background: #fee2e2; border-color:#fca5a5; color:#991b1b; }
+    .progress {
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      margin: 12px 0 18px;
+    }
+    .bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #2563eb, #7c3aed);
+      transition: width .25s ease;
+    }
+    .pill {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+    .feedback {
+      margin-top: 14px;
+      border-radius: 16px;
+      padding: 14px 16px;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+    .feedback.good { background:#ecfdf5; color:#166534; }
+    .feedback.bad { background:#fef2f2; color:#991b1b; }
+    .feedback.hint { background:#eff6ff; color:#1d4ed8; }
+    .badge {
+      display:inline-block;
+      margin-top: 8px;
+      padding: 8px 12px;
+      background: #fef3c7;
+      color: #92400e;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+    .confetti {
+      position: fixed;
+      inset: 0;
+      pointer-events:none;
+      overflow:hidden;
+      z-index: 50;
+    }
+    .confetti span {
+      position:absolute;
+      top:-20px;
+      font-size: 22px;
+      animation: fall 1.8s linear forwards;
+    }
+    @keyframes fall {
+      from { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+      to { transform: translateY(105vh) rotate(420deg); opacity: 0; }
+    }
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 26px; }
+      .content { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="app">
+    <div class="hero">
+      <h1>Quiz Tiếng Anh</h1>
+      <p>Học theo chủ đề, chọn cấp độ, làm từng câu, nhận khen ngợi khi đúng, và có gợi ý tiếng Việt khi chưa biết.</p>
+    </div>
+    <div id="root" class="content"></div>
+  </div>
+</div>
+
+<div id="confetti" class="confetti" aria-hidden="true"></div>
+
+<script>
+const QUIZ_DATA = {"family": [{"q": "My father's sister is my ________.", "options": ["uncle", "aunt", "cousin", "niece"], "answer": 1, "explain": "Aunt là cô/dì/bác gái, tức chị/em gái của bố hoặc mẹ.", "hint": "Người này là chị/em gái của bố."}, {"q": "Your son's daughter is your ________.", "options": ["grandson", "granddaughter", "niece", "grandmother"], "answer": 1, "explain": "Granddaughter là cháu gái, tức con của con trai hoặc con gái bạn.", "hint": "Đây là con gái của con bạn."}, {"q": "My mother and father are my ________.", "options": ["relatives", "ancestors", "parents", "partners"], "answer": 2, "explain": "Parents là bố mẹ.", "hint": "Từ chỉ chung bố và mẹ."}, {"q": "A person who has no brothers or sisters is an ________ child.", "options": ["alone", "only", "single", "lonely"], "answer": 1, "explain": "Only child là con một.", "hint": "Từ đi với ‘child’ để chỉ con một."}, {"q": "My brother's son is my ________.", "options": ["nephew", "niece", "cousin", "stepbrother"], "answer": 0, "explain": "Nephew là cháu trai, con của anh/chị/em ruột.", "hint": "Con trai của anh/em."}, {"q": "The man who is married to your mother but is not your biological father is your ________.", "options": ["father-in-law", "stepfather", "uncle", "godfather"], "answer": 1, "explain": "Stepfather là bố dượng, không phải bố ruột.", "hint": "Bố kế / bố dượng."}, {"q": "If you are married, your wife's mother is your ________.", "options": ["stepmother", "mother-in-law", "godmother", "aunt"], "answer": 1, "explain": "Mother-in-law là mẹ vợ hoặc mẹ chồng.", "hint": "Mẹ của vợ/chồng."}, {"q": "Your female child is your ________.", "options": ["daughter", "son", "sister", "girl"], "answer": 0, "explain": "Daughter là con gái.", "hint": "Con của bạn là nữ."}, {"q": "My sister and I have the same parents. She is my ________.", "options": ["relative", "sibling", "twin", "cousin"], "answer": 1, "explain": "Sibling là anh chị em ruột.", "hint": "Từ chỉ anh/chị/em cùng bố mẹ."}, {"q": "The son of your aunt or uncle is your ________.", "options": ["nephew", "cousin", "brother", "grandson"], "answer": 1, "explain": "Cousin là anh chị em họ.", "hint": "Con của cô/dì/chú/bác."}, {"q": "My father's father is my ________.", "options": ["grandfather", "grandmother", "grandson", "uncle"], "answer": 0, "explain": "Grandfather là ông nội/ông ngoại.", "hint": "Bố của bố."}, {"q": "A woman who is about to get married is called a ________.", "options": ["groom", "bride", "wife", "fiancé"], "answer": 1, "explain": "Bride là cô dâu.", "hint": "Chú rể là groom, còn cô dâu là gì?"}, {"q": "When a marriage ends legally, the couple gets ________.", "options": ["separated", "engaged", "divorced", "married"], "answer": 2, "explain": "Divorced là ly hôn.", "hint": "Hôn nhân kết thúc hợp pháp."}, {"q": "My husband's sister is my ________.", "options": ["sister-in-law", "stepmother", "aunt", "cousin"], "answer": 0, "explain": "Sister-in-law là chị/em dâu hoặc chị/em chồng.", "hint": "Chị/em của chồng/vợ."}, {"q": "Two children born at the same time to the same mother are ________.", "options": ["couples", "twins", "doubles", "partners"], "answer": 1, "explain": "Twins là anh/chị/em sinh đôi.", "hint": "Sinh cùng lúc từ một mẹ."}, {"q": "A girl who has the same father but a different mother is your ________.", "options": ["sister-in-law", "half-sister", "stepsister", "cousin"], "answer": 1, "explain": "Half-sister là chị/em cùng cha khác mẹ.", "hint": "Cùng cha, khác mẹ."}, {"q": "A man whose wife has died is a ________.", "options": ["widow", "widower", "single", "bachelor"], "answer": 1, "explain": "Widower là người đàn ông góa vợ.", "hint": "Từ cho nam khi vợ đã mất."}, {"q": "If your sister has a baby girl, that girl is your ________.", "options": ["nephew", "niece", "cousin", "granddaughter"], "answer": 1, "explain": "Niece là cháu gái, con của anh/chị/em ruột.", "hint": "Con gái của chị/em bạn."}, {"q": "A family that includes grandparents, aunts, and uncles is an ________ family.", "options": ["nuclear", "extended", "small", "modern"], "answer": 1, "explain": "Extended family là gia đình mở rộng nhiều thế hệ.", "hint": "Gia đình có ông bà, cô dì chú bác."}, {"q": "The people you are related to are your ________.", "options": ["friends", "relatives", "neighbors", "colleagues"], "answer": 1, "explain": "Relatives là họ hàng, thân nhân.", "hint": "Từ chỉ người thân trong họ."}, {"q": "My mother's brother is my ________.", "options": ["aunt", "nephew", "uncle", "cousin"], "answer": 2, "explain": "Uncle là chú, bác, cậu.", "hint": "Anh/em trai của mẹ."}, {"q": "A male parent is a ________.", "options": ["mother", "father", "brother", "son"], "answer": 1, "explain": "Father là bố.", "hint": "Cha của bạn."}, {"q": "Your brother's wife is your ________.", "options": ["sister", "sister-in-law", "mother-in-law", "aunt"], "answer": 1, "explain": "Sister-in-law là chị/em dâu.", "hint": "Vợ của anh/em trai."}, {"q": "A woman who has never been married is often called ________.", "options": ["single", "widow", "divorced", "bride"], "answer": 0, "explain": "Single là người độc thân.", "hint": "Chưa kết hôn."}, {"q": "My grandfather's wife is my ________.", "options": ["grandmother", "aunt", "mother", "stepmother"], "answer": 0, "explain": "Grandmother là bà nội/bà ngoại.", "hint": "Vợ của ông."}, {"q": "A ________ family consists of only parents and their children.", "options": ["big", "nuclear", "extended", "single"], "answer": 1, "explain": "Nuclear family là gia đình hạt nhân.", "hint": "Chỉ có bố mẹ và con."}, {"q": "The daughter of your step-parent is your ________.", "options": ["half-sister", "stepsister", "cousin", "niece"], "answer": 1, "explain": "Stepsister là chị/em gái kế, con riêng của bố dượng/mẹ kế.", "hint": "Con riêng của cha/mẹ kế."}, {"q": "My son's wife is my ________.", "options": ["daughter-in-law", "stepdaughter", "niece", "aunt"], "answer": 0, "explain": "Daughter-in-law là con dâu.", "hint": "Vợ của con trai bạn."}, {"q": "When a man and woman promise to marry each other, they are ________.", "options": ["married", "divorced", "engaged", "separated"], "answer": 2, "explain": "Engaged là đính hôn.", "hint": "Đã hứa sẽ kết hôn."}, {"q": "Your father's new wife who is not your biological mother is your ________.", "options": ["stepmother", "mother-in-law", "aunt", "godmother"], "answer": 0, "explain": "Stepmother là mẹ kế.", "hint": "Mẹ không phải ruột."}, {"q": "The female parent of your father is your ________.", "options": ["grandfather", "grandmother", "aunt", "mother"], "answer": 1, "explain": "Grandmother là bà nội/bà ngoại.", "hint": "Mẹ của bố."}, {"q": "A male sibling is a ________.", "options": ["sister", "brother", "uncle", "cousin"], "answer": 1, "explain": "Brother là anh/em trai ruột.", "hint": "Anh/em trai."}, {"q": "My sister's husband is my ________.", "options": ["brother-in-law", "stepbrother", "nephew", "cousin"], "answer": 0, "explain": "Brother-in-law là anh/em rể.", "hint": "Chồng của chị/em gái."}, {"q": "A woman whose husband has died and who has not remarried is a ________.", "options": ["widower", "widow", "single", "divorced"], "answer": 1, "explain": "Widow là góa phụ.", "hint": "Từ cho nữ khi chồng đã mất."}, {"q": "If you are a boy, you are the ________ of your parents.", "options": ["daughter", "son", "brother", "nephew"], "answer": 1, "explain": "Son là con trai.", "hint": "Con của bố mẹ là nam."}, {"q": "Your children's children are your ________.", "options": ["grandchildren", "nephews", "cousins", "parents"], "answer": 0, "explain": "Grandchildren là các cháu nội/ngoại.", "hint": "Cháu của bạn."}, {"q": "A male who is about to get married is the ________.", "options": ["bride", "groom", "husband", "bachelor"], "answer": 1, "explain": "Groom là chú rể.", "hint": "Cô dâu là bride, chú rể là gì?"}, {"q": "My daughter's son is my ________.", "options": ["grandson", "granddaughter", "nephew", "uncle"], "answer": 0, "explain": "Grandson là cháu trai.", "hint": "Con trai của con gái bạn."}, {"q": "A woman who raises a child alone without a partner is a ________ mother.", "options": ["lonely", "single", "only", "half"], "answer": 1, "explain": "Single mother là mẹ đơn thân.", "hint": "Nuôi con một mình."}, {"q": "Your father's brother's child is your ________.", "options": ["cousin", "nephew", "brother", "grandson"], "answer": 0, "explain": "Cousin là anh chị em họ.", "hint": "Con của chú/bác/cậu."}], "travel": [{"q": "If you want to get a cheaper fare, you should book your flight ____.", "options": ["on time", "in advance", "at last", "by hand"], "answer": 1, "explain": "In advance là đặt trước, thường giúp có giá tốt hơn.", "hint": "Đặt trước khi đi."}, {"q": "We were ____ at the airport for five hours because of the heavy fog.", "options": ["delayed", "cancelled", "missed", "arrived"], "answer": 0, "explain": "Delayed là bị hoãn chậm lại.", "hint": "Chuyến bay đến muộn."}, {"q": "I always try to pack ____ so I don't have to pay for extra baggage.", "options": ["heavy", "fast", "light", "hard"], "answer": 2, "explain": "Pack light nghĩa là mang ít đồ.", "hint": "Mang đồ gọn nhẹ."}, {"q": "Could you tell me where the ____ desk is? I need to get my boarding pass.", "options": ["reception", "information", "security", "check-in"], "answer": 3, "explain": "Check-in desk là quầy làm thủ tục bay.", "hint": "Nơi lấy thẻ lên máy bay."}, {"q": "Many tourists prefer to go ____ to see the famous landmarks of the city.", "options": ["sightseeing", "hiking", "sunbathing", "shopping"], "answer": 0, "explain": "Sightseeing là đi tham quan ngắm cảnh.", "hint": "Đi xem địa điểm nổi tiếng."}, {"q": "The hotel room has a stunning ____ of the Eiffel Tower.", "options": ["look", "view", "sight", "scene"], "answer": 1, "explain": "View là tầm nhìn/cảnh nhìn thấy từ một chỗ.", "hint": "Cảnh nhìn thấy từ phòng."}, {"q": "We decided to ____ a car so we could explore the countryside.", "options": ["rent", "borrow", "buy", "take"], "answer": 0, "explain": "Rent là thuê trong thời gian ngắn.", "hint": "Không mua, chỉ thuê."}, {"q": "It's important to have travel ____ in case of emergencies.", "options": ["document", "insurance", "guide", "ticket"], "answer": 1, "explain": "Travel insurance là bảo hiểm du lịch.", "hint": "Bảo hiểm khi đi du lịch."}, {"q": "The local ____ was delicious, especially the seafood paella.", "options": ["cook", "cuisine", "kitchen", "diet"], "answer": 1, "explain": "Cuisine là phong cách ẩm thực của một vùng.", "hint": "Ẩm thực địa phương."}, {"q": "After a long day of walking, we finally reached our ____.", "options": ["route", "journey", "destination", "departure"], "answer": 2, "explain": "Destination là điểm đến cuối cùng.", "hint": "Đích đến."}, {"q": "Do you have any items to ____ at customs?", "options": ["show", "declare", "give", "keep"], "answer": 1, "explain": "Declare là khai báo hàng hóa với hải quan.", "hint": "Khai với hải quan."}, {"q": "The flight ____ was very helpful during the long trip.", "options": ["attendant", "waiter", "driver", "guide"], "answer": 0, "explain": "Flight attendant là tiếp viên hàng không.", "hint": "Người phục vụ trên máy bay."}, {"q": "I'd like a window ____ rather than an aisle one.", "options": ["chair", "place", "seat", "bench"], "answer": 2, "explain": "Seat là ghế ngồi.", "hint": "Chỗ ngồi."}, {"q": "Is ____ included in the price of the hotel room?", "options": ["lunch", "breakfast", "dinner", "snack"], "answer": 1, "explain": "Breakfast là bữa sáng.", "hint": "Bữa ăn đầu ngày."}, {"q": "We stayed at a luxury ____ near the beach.", "options": ["resort", "hostel", "camp", "tent"], "answer": 0, "explain": "Resort là khu nghỉ dưỡng.", "hint": "Chỗ nghỉ cao cấp."}, {"q": "Can you recommend a good local ____ who speaks English?", "options": ["teacher", "guide", "doctor", "chef"], "answer": 1, "explain": "Guide là hướng dẫn viên du lịch.", "hint": "Người dẫn tour."}, {"q": "My passport ____ next month, so I need to renew it.", "options": ["ends", "finishes", "expires", "closes"], "answer": 2, "explain": "Expire là hết hạn hiệu lực.", "hint": "Giấy tờ không còn hiệu lực."}, {"q": "We took a ____ flight to save money for the trip.", "options": ["expensive", "budget", "first-class", "private"], "answer": 1, "explain": "Budget flight là chuyến bay giá rẻ.", "hint": "Phù hợp túi tiền."}, {"q": "Please fasten your ____ during takeoff.", "options": ["bag", "seatbelt", "shoes", "hat"], "answer": 1, "explain": "Seatbelt là dây an toàn.", "hint": "Thắt dây khi cất cánh."}, {"q": "We went on a guided ____ of the ancient castle.", "options": ["walk", "tour", "run", "ride"], "answer": 1, "explain": "Tour là chuyến tham quan có hướng dẫn.", "hint": "Đi theo lịch trình tham quan."}, {"q": "The train ____ from Paris to Rome was very scenic.", "options": ["travel", "trip", "journey", "flight"], "answer": 2, "explain": "Journey nhấn mạnh hành trình đi từ nơi này đến nơi khác.", "hint": "Hành trình dài."}, {"q": "I forgot to bring my ____ to take photos.", "options": ["laptop", "camera", "radio", "watch"], "answer": 1, "explain": "Camera là máy ảnh.", "hint": "Dùng để chụp hình."}, {"q": "Is there a shuttle ____ that goes to the airport?", "options": ["car", "bus", "train", "plane"], "answer": 1, "explain": "Shuttle bus là xe buýt đưa đón.", "hint": "Xe đưa đón khách."}, {"q": "I need to ____ some money into Japanese Yen.", "options": ["change", "exchange", "give", "spend"], "answer": 1, "explain": "Exchange là đổi tiền.", "hint": "Đổi ngoại tệ."}, {"q": "The hotel was fully ____, so we had to look elsewhere.", "options": ["filled", "booked", "taken", "closed"], "answer": 1, "explain": "Fully booked nghĩa là đã kín phòng.", "hint": "Đã đặt hết phòng."}, {"q": "I bought some ____ for my family back home.", "options": ["souvenirs", "tools", "groceries", "furniture"], "answer": 0, "explain": "Souvenirs là quà lưu niệm.", "hint": "Món quà khi đi du lịch."}, {"q": "What time is ____? We need to leave the hotel by 11 AM.", "options": ["check-in", "check-out", "breakfast", "cleaning"], "answer": 1, "explain": "Check-out là thủ tục trả phòng.", "hint": "Rời khách sạn."}, {"q": "We got lost and had to ask for ____.", "options": ["help", "directions", "money", "time"], "answer": 1, "explain": "Directions là chỉ đường/hướng đi.", "hint": "Hỏi đường."}, {"q": "This city has a very exciting ____ with many clubs.", "options": ["nightlife", "morning", "history", "nature"], "answer": 0, "explain": "Nightlife là cuộc sống về đêm.", "hint": "Hoạt động ban đêm."}, {"q": "A ____ is much cheaper than a 5-star hotel.", "options": ["palace", "villa", "hostel", "mansion"], "answer": 2, "explain": "Hostel là nhà nghỉ bình dân.", "hint": "Chỗ ở giá rẻ."}, {"q": "You should always carry a ____ of the city.", "options": ["book", "map", "newspaper", "card"], "answer": 1, "explain": "Map là bản đồ.", "hint": "Để khỏi lạc đường."}, {"q": "The plane will ____ in about ten minutes.", "options": ["jump", "fly", "land", "stop"], "answer": 2, "explain": "Land là hạ cánh.", "hint": "Máy bay chạm đất."}, {"q": "I prefer an ____ seat so I can get up easily.", "options": ["window", "aisle", "middle", "back"], "answer": 1, "explain": "Aisle seat là ghế cạnh lối đi.", "hint": "Ghế gần hành lang."}, {"q": "How much is the bus ____ to the city center?", "options": ["cost", "price", "fare", "bill"], "answer": 2, "explain": "Fare là giá vé phương tiện.", "hint": "Giá vé xe buýt."}, {"q": "Is the tap water ____ to drink in this country?", "options": ["safe", "dangerous", "salty", "cold"], "answer": 0, "explain": "Safe nghĩa là an toàn.", "hint": "Uống có sao không."}, {"q": "We spent the whole afternoon ____ on the beach.", "options": ["sunbathing", "running", "cooking", "working"], "answer": 0, "explain": "Sunbathing là tắm nắng.", "hint": "Nằm dưới nắng."}, {"q": "The hotel provides free ____ for all guests.", "options": ["cars", "Wi-Fi", "clothes", "shoes"], "answer": 1, "explain": "Wi‑Fi là internet không dây.", "hint": "Mạng miễn phí."}, {"q": "We need to ____ our bags before heading to the gate.", "options": ["check", "carry", "sell", "open"], "answer": 0, "explain": "Check bags là ký gửi hành lý.", "hint": "Gửi hành lý."}, {"q": "The mountain ____ was so fresh and clean.", "options": ["water", "air", "soil", "rock"], "answer": 1, "explain": "Air là không khí.", "hint": "Thứ chúng ta hít thở."}, {"q": "It was an ____ trip that I will always remember.", "options": ["boring", "unforgettable", "expensive", "easy"], "answer": 1, "explain": "Unforgettable là không thể nào quên.", "hint": "Rất đáng nhớ."}], "mixed": [{"q": "My father's sister is my ________.", "options": ["uncle", "aunt", "cousin", "niece"], "answer": 1, "explain": "Aunt là cô/dì/bác gái, tức chị/em gái của bố hoặc mẹ.", "hint": "Người này là chị/em gái của bố."}, {"q": "If you want to get a cheaper fare, you should book your flight ____.", "options": ["on time", "in advance", "at last", "by hand"], "answer": 1, "explain": "In advance là đặt trước, thường giúp có giá tốt hơn.", "hint": "Đặt trước khi đi."}, {"q": "Your son's daughter is your ________.", "options": ["grandson", "granddaughter", "niece", "grandmother"], "answer": 1, "explain": "Granddaughter là cháu gái, tức con của con trai hoặc con gái bạn.", "hint": "Đây là con gái của con bạn."}, {"q": "We were ____ at the airport for five hours because of the heavy fog.", "options": ["delayed", "cancelled", "missed", "arrived"], "answer": 0, "explain": "Delayed là bị hoãn chậm lại.", "hint": "Chuyến bay đến muộn."}, {"q": "My mother and father are my ________.", "options": ["relatives", "ancestors", "parents", "partners"], "answer": 2, "explain": "Parents là bố mẹ.", "hint": "Từ chỉ chung bố và mẹ."}, {"q": "I always try to pack ____ so I don't have to pay for extra baggage.", "options": ["heavy", "fast", "light", "hard"], "answer": 2, "explain": "Pack light nghĩa là mang ít đồ.", "hint": "Mang đồ gọn nhẹ."}, {"q": "A person who has no brothers or sisters is an ________ child.", "options": ["alone", "only", "single", "lonely"], "answer": 1, "explain": "Only child là con một.", "hint": "Từ đi với ‘child’ để chỉ con một."}, {"q": "Could you tell me where the ____ desk is? I need to get my boarding pass.", "options": ["reception", "information", "security", "check-in"], "answer": 3, "explain": "Check-in desk là quầy làm thủ tục bay.", "hint": "Nơi lấy thẻ lên máy bay."}, {"q": "My brother's son is my ________.", "options": ["nephew", "niece", "cousin", "stepbrother"], "answer": 0, "explain": "Nephew là cháu trai, con của anh/chị/em ruột.", "hint": "Con trai của anh/em."}, {"q": "Many tourists prefer to go ____ to see the famous landmarks of the city.", "options": ["sightseeing", "hiking", "sunbathing", "shopping"], "answer": 0, "explain": "Sightseeing là đi tham quan ngắm cảnh.", "hint": "Đi xem địa điểm nổi tiếng."}, {"q": "The man who is married to your mother but is not your biological father is your ________.", "options": ["father-in-law", "stepfather", "uncle", "godfather"], "answer": 1, "explain": "Stepfather là bố dượng, không phải bố ruột.", "hint": "Bố kế / bố dượng."}, {"q": "The hotel room has a stunning ____ of the Eiffel Tower.", "options": ["look", "view", "sight", "scene"], "answer": 1, "explain": "View là tầm nhìn/cảnh nhìn thấy từ một chỗ.", "hint": "Cảnh nhìn thấy từ phòng."}, {"q": "If you are married, your wife's mother is your ________.", "options": ["stepmother", "mother-in-law", "godmother", "aunt"], "answer": 1, "explain": "Mother-in-law là mẹ vợ hoặc mẹ chồng.", "hint": "Mẹ của vợ/chồng."}, {"q": "We decided to ____ a car so we could explore the countryside.", "options": ["rent", "borrow", "buy", "take"], "answer": 0, "explain": "Rent là thuê trong thời gian ngắn.", "hint": "Không mua, chỉ thuê."}, {"q": "Your female child is your ________.", "options": ["daughter", "son", "sister", "girl"], "answer": 0, "explain": "Daughter là con gái.", "hint": "Con của bạn là nữ."}, {"q": "It's important to have travel ____ in case of emergencies.", "options": ["document", "insurance", "guide", "ticket"], "answer": 1, "explain": "Travel insurance là bảo hiểm du lịch.", "hint": "Bảo hiểm khi đi du lịch."}, {"q": "My sister and I have the same parents. She is my ________.", "options": ["relative", "sibling", "twin", "cousin"], "answer": 1, "explain": "Sibling là anh chị em ruột.", "hint": "Từ chỉ anh/chị/em cùng bố mẹ."}, {"q": "The local ____ was delicious, especially the seafood paella.", "options": ["cook", "cuisine", "kitchen", "diet"], "answer": 1, "explain": "Cuisine là phong cách ẩm thực của một vùng.", "hint": "Ẩm thực địa phương."}, {"q": "The son of your aunt or uncle is your ________.", "options": ["nephew", "cousin", "brother", "grandson"], "answer": 1, "explain": "Cousin là anh chị em họ.", "hint": "Con của cô/dì/chú/bác."}, {"q": "After a long day of walking, we finally reached our ____.", "options": ["route", "journey", "destination", "departure"], "answer": 2, "explain": "Destination là điểm đến cuối cùng.", "hint": "Đích đến."}, {"q": "My father's father is my ________.", "options": ["grandfather", "grandmother", "grandson", "uncle"], "answer": 0, "explain": "Grandfather là ông nội/ông ngoại.", "hint": "Bố của bố."}, {"q": "Do you have any items to ____ at customs?", "options": ["show", "declare", "give", "keep"], "answer": 1, "explain": "Declare là khai báo hàng hóa với hải quan.", "hint": "Khai với hải quan."}, {"q": "A woman who is about to get married is called a ________.", "options": ["groom", "bride", "wife", "fiancé"], "answer": 1, "explain": "Bride là cô dâu.", "hint": "Chú rể là groom, còn cô dâu là gì?"}, {"q": "The flight ____ was very helpful during the long trip.", "options": ["attendant", "waiter", "driver", "guide"], "answer": 0, "explain": "Flight attendant là tiếp viên hàng không.", "hint": "Người phục vụ trên máy bay."}, {"q": "When a marriage ends legally, the couple gets ________.", "options": ["separated", "engaged", "divorced", "married"], "answer": 2, "explain": "Divorced là ly hôn.", "hint": "Hôn nhân kết thúc hợp pháp."}, {"q": "I'd like a window ____ rather than an aisle one.", "options": ["chair", "place", "seat", "bench"], "answer": 2, "explain": "Seat là ghế ngồi.", "hint": "Chỗ ngồi."}, {"q": "My husband's sister is my ________.", "options": ["sister-in-law", "stepmother", "aunt", "cousin"], "answer": 0, "explain": "Sister-in-law là chị/em dâu hoặc chị/em chồng.", "hint": "Chị/em của chồng/vợ."}, {"q": "Is ____ included in the price of the hotel room?", "options": ["lunch", "breakfast", "dinner", "snack"], "answer": 1, "explain": "Breakfast là bữa sáng.", "hint": "Bữa ăn đầu ngày."}, {"q": "Two children born at the same time to the same mother are ________.", "options": ["couples", "twins", "doubles", "partners"], "answer": 1, "explain": "Twins là anh/chị/em sinh đôi.", "hint": "Sinh cùng lúc từ một mẹ."}, {"q": "We stayed at a luxury ____ near the beach.", "options": ["resort", "hostel", "camp", "tent"], "answer": 0, "explain": "Resort là khu nghỉ dưỡng.", "hint": "Chỗ nghỉ cao cấp."}, {"q": "A girl who has the same father but a different mother is your ________.", "options": ["sister-in-law", "half-sister", "stepsister", "cousin"], "answer": 1, "explain": "Half-sister là chị/em cùng cha khác mẹ.", "hint": "Cùng cha, khác mẹ."}, {"q": "Can you recommend a good local ____ who speaks English?", "options": ["teacher", "guide", "doctor", "chef"], "answer": 1, "explain": "Guide là hướng dẫn viên du lịch.", "hint": "Người dẫn tour."}, {"q": "A man whose wife has died is a ________.", "options": ["widow", "widower", "single", "bachelor"], "answer": 1, "explain": "Widower là người đàn ông góa vợ.", "hint": "Từ cho nam khi vợ đã mất."}, {"q": "My passport ____ next month, so I need to renew it.", "options": ["ends", "finishes", "expires", "closes"], "answer": 2, "explain": "Expire là hết hạn hiệu lực.", "hint": "Giấy tờ không còn hiệu lực."}, {"q": "If your sister has a baby girl, that girl is your ________.", "options": ["nephew", "niece", "cousin", "granddaughter"], "answer": 1, "explain": "Niece là cháu gái, con của anh/chị/em ruột.", "hint": "Con gái của chị/em bạn."}, {"q": "We took a ____ flight to save money for the trip.", "options": ["expensive", "budget", "first-class", "private"], "answer": 1, "explain": "Budget flight là chuyến bay giá rẻ.", "hint": "Phù hợp túi tiền."}, {"q": "A family that includes grandparents, aunts, and uncles is an ________ family.", "options": ["nuclear", "extended", "small", "modern"], "answer": 1, "explain": "Extended family là gia đình mở rộng nhiều thế hệ.", "hint": "Gia đình có ông bà, cô dì chú bác."}, {"q": "Please fasten your ____ during takeoff.", "options": ["bag", "seatbelt", "shoes", "hat"], "answer": 1, "explain": "Seatbelt là dây an toàn.", "hint": "Thắt dây khi cất cánh."}, {"q": "The people you are related to are your ________.", "options": ["friends", "relatives", "neighbors", "colleagues"], "answer": 1, "explain": "Relatives là họ hàng, thân nhân.", "hint": "Từ chỉ người thân trong họ."}, {"q": "We went on a guided ____ of the ancient castle.", "options": ["walk", "tour", "run", "ride"], "answer": 1, "explain": "Tour là chuyến tham quan có hướng dẫn.", "hint": "Đi theo lịch trình tham quan."}]};
+let state = {
+  page: 'home',
+  topic: null,
+  level: 'Cơ bản',
+  idx: 0,
+  score: 0,
+  triedHint: false,
+  selected: null,
+  order: []
+};
+
+const topicInfo = {
+  family: {
+    title: 'Family Vocabulary',
+    desc: '40 câu về các mối quan hệ trong gia đình.',
+    tag: 'Gia đình',
+    colorClass: 'tag'
+  },
+  travel: {
+    title: 'Travel Vocabulary',
+    desc: '40 câu từ vựng du lịch, khách sạn, sân bay.',
+    tag: 'Du lịch',
+    colorClass: 'tag purple'
+  },
+  mixed: {
+    title: 'Mixed Review',
+    desc: '40 câu ôn tập trộn giữa Family và Travel.',
+    tag: 'Tổng hợp',
+    colorClass: 'tag green'
+  }
+};
+
+function shuffle(array) {
+  const a = array.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function setPage(page) {
+  state.page = page;
+  render();
+}
+
+function startQuiz(topic, level) {
+  state.topic = topic;
+  state.level = level;
+  state.idx = 0;
+  state.score = 0;
+  state.triedHint = false;
+  state.selected = null;
+  state.order = shuffle(QUIZ_DATA[topic]).slice(0, 40);
+  setPage('quiz');
+}
+
+function renderHome() {
+  const root = document.getElementById('root');
+  root.innerHTML = `
+    <div class="card">
+      <div class="between">
+        <div>
+          <div class="pill">Trang 1 • Giới thiệu</div>
+          <h2 style="margin:12px 0 8px;">Chọn chủ đề và cấp độ</h2>
+          <p class="muted" style="margin:0; line-height:1.6;">
+            Mỗi bài có 40 câu. Làm đúng sẽ có lời khen và hiệu ứng sticker; làm sai sẽ có giải thích rõ vì sao sai;
+            chưa biết thì bấm gợi ý tiếng Việt để biết cách làm.
+          </p>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card topic" onclick="openTopic('family')">
+          <span class="${topicInfo.family.colorClass}">${topicInfo.family.tag}</span>
+          <h3>${topicInfo.family.title}</h3>
+          <p class="muted">${topicInfo.family.desc}</p>
+        </div>
+        <div class="card topic" onclick="openTopic('travel')">
+          <span class="${topicInfo.travel.colorClass}">${topicInfo.travel.tag}</span>
+          <h3>${topicInfo.travel.title}</h3>
+          <p class="muted">${topicInfo.travel.desc}</p>
+        </div>
+        <div class="card topic" onclick="openTopic('mixed')">
+          <span class="${topicInfo.mixed.colorClass}">${topicInfo.mixed.tag}</span>
+          <h3>${topicInfo.mixed.title}</h3>
+          <p class="muted">${topicInfo.mixed.desc}</p>
+        </div>
+      </div>
+
+      <div id="topicDetail" style="margin-top:16px;"></div>
+    </div>
+  `;
+}
+
+function openTopic(topic) {
+  state.topic = topic;
+  const d = topicInfo[topic];
+  document.getElementById('topicDetail').innerHTML = `
+    <div class="card" style="background:#f8fafc;">
+      <h3 style="margin-top:0;">${d.title}</h3>
+      <p class="muted">${d.desc}</p>
+      <div class="row">
+        <button class="btn btn-primary" onclick="startQuiz('${topic}', 'Cơ bản')">Cấp độ 1: Cơ bản</button>
+        <button class="btn btn-soft" onclick="startQuiz('${topic}', 'Trung bình')">Cấp độ 2: Trung bình</button>
+        <button class="btn btn-outline" onclick="startQuiz('${topic}', 'Thử thách')">Cấp độ 3: Thử thách</button>
+      </div>
+      <p class="muted" style="margin-bottom:0; margin-top:12px;">
+        Cơ bản: gợi ý luôn sẵn sàng. Trung bình: giải thích đầy đủ hơn. Thử thách: ít trợ giúp hơn.
+      </p>
+    </div>
+  `;
+}
+
+function currentQ() {
+  return state.order[state.idx];
+}
+
+function progressPercent() {
+  return Math.round((state.idx / state.order.length) * 100);
+}
+
+function renderQuiz() {
+  const q = currentQ();
+  const root = document.getElementById('root');
+  const showHintBtn = state.level !== 'Thử thách' || state.triedHint;
+  root.innerHTML = `
+    <div class="card">
+      <div class="between">
+        <div>
+          <div class="pill">${topicInfo[state.topic].title} • ${state.level}</div>
+          <h2 style="margin:12px 0 6px;">Câu ${state.idx + 1} / ${state.order.length}</h2>
+          <div class="muted">Điểm hiện tại: <b>${state.score}</b></div>
+        </div>
+        <button class="btn btn-ghost" onclick="setPage('home')">⬅ Về trang chủ</button>
+      </div>
+
+      <div class="progress"><div class="bar" style="width:${progressPercent()}%"></div></div>
+
+      <div class="qbox">
+        <h3 style="margin-top:0; line-height:1.5;">${q.q}</h3>
+        <div class="options" id="options">
+          ${q.options.map((opt, i) => `<button class="opt" onclick="answer(${i})">${String.fromCharCode(65+i)}. ${opt}</button>`).join('')}
+        </div>
+
+        <div class="row" style="margin-top:14px;">
+          ${showHintBtn ? `<button class="btn btn-soft" onclick="showHint()">💡 Gợi ý tiếng Việt</button>` : ''}
+          <button class="btn btn-outline" onclick="dontKnow()">😵 Không biết</button>
+          <button class="btn btn-ghost" onclick="skipQuestion()">Bỏ qua</button>
+        </div>
+
+        <div id="feedbackArea"></div>
+      </div>
+    </div>
+  `;
+}
+
+function showHint() {
+  const q = currentQ();
+  state.triedHint = true;
+  const fb = document.getElementById('feedbackArea');
+  fb.innerHTML = `
+    <div class="feedback hint">
+      💡 Gợi ý: ${q.hint}<br>
+      Cách làm: tìm từ khóa chính trong câu rồi đối chiếu nghĩa tiếng Việt.
+    </div>
+  `;
+}
+
+function markOptions(correctIndex, chosenIndex) {
+  const buttons = document.querySelectorAll('.opt');
+  buttons.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === correctIndex) btn.classList.add('correct');
+    if (i === chosenIndex && chosenIndex !== correctIndex) btn.classList.add('wrong');
+  });
+}
+
+function confetti() {
+  const root = document.getElementById('confetti');
+  root.innerHTML = '';
+  const icons = ['🎉','✨','🌟','💖','🏆','🔥'];
+  for (let i = 0; i < 28; i++) {
+    const span = document.createElement('span');
+    span.textContent = icons[Math.floor(Math.random() * icons.length)];
+    span.style.left = Math.random() * 100 + 'vw';
+    span.style.animationDelay = (Math.random() * 0.3) + 's';
+    span.style.fontSize = (16 + Math.random() * 18) + 'px';
+    root.appendChild(span);
+  }
+  setTimeout(() => root.innerHTML = '', 2200);
+}
+
+function feedbackBox(type, html) {
+  document.getElementById('feedbackArea').innerHTML = `
+    <div class="feedback ${type}">${html}</div>
+  `;
+}
+
+function advance() {
+  setTimeout(() => {
+    state.idx += 1;
+    state.selected = null;
+    state.triedHint = false;
+    if (state.idx >= state.order.length) renderResult();
+    else renderQuiz();
+  }, 1300);
+}
+
+function answer(index) {
+  const q = currentQ();
+  state.selected = index;
+  const correct = q.answer;
+  markOptions(correct, index);
+
+  if (index === correct) {
+    state.score += 1;
+    confetti();
+    feedbackBox('good', `✅ Đúng rồi!<br><b>Giải thích:</b> ${q.explain}<br><span class="badge">Sticker: 🌟 Tuyệt vời, làm rất tốt!</span>`);
+  } else {
+    feedbackBox('bad', `❌ Chưa đúng.<br><b>Vì sao sai:</b> Bạn chọn đáp án chưa khớp nghĩa của câu.<br><b>Đáp án đúng:</b> ${String.fromCharCode(65 + correct)}. ${q.options[correct]}<br><b>Giải thích:</b> ${q.explain}<br><b>Cách làm:</b> Nhìn từ khóa chính rồi đối chiếu nghĩa tiếng Việt.`);
+  }
+  advance();
+}
+
+function dontKnow() {
+  const q = currentQ();
+  state.triedHint = true;
+  feedbackBox('hint', `💡 Gợi ý tiếng Việt: ${q.hint}<br><br>Cách làm: đọc lại câu, tìm quan hệ (gia đình / sân bay / khách sạn / chuyến đi) rồi chọn từ phù hợp nhất.`);
+}
+
+function skipQuestion() {
+  const q = currentQ();
+  feedbackBox('hint', `⏭ Bạn đã bỏ qua câu này.<br><b>Đáp án đúng:</b> ${String.fromCharCode(65 + q.answer)}. ${q.options[q.answer]}<br><b>Giải thích:</b> ${q.explain}`);
+  advance();
+}
+
+function renderResult() {
+  const root = document.getElementById('root');
+  const percent = Math.round((state.score / state.order.length) * 100);
+  let badge = 'Tiếp tục luyện nhé';
+  if (percent >= 90) badge = 'Siêu đỉnh!';
+  else if (percent >= 75) badge = 'Làm rất tốt!';
+  else if (percent >= 50) badge = 'Khá ổn, cố thêm chút nữa!';
+  root.innerHTML = `
+    <div class="card" style="text-align:center;">
+      <div class="pill" style="margin-bottom:10px;">Kết quả cuối</div>
+      <h2 style="margin-top:8px;">🎉 Hoàn thành bài quiz!</h2>
+      <p class="muted">Bạn đã làm đúng <b>${state.score}/${state.order.length}</b> câu (${percent}%).</p>
+      <div class="badge">${badge}</div>
+      <div style="margin-top:18px; font-size: 44px;">${percent >= 90 ? '🏆🌟🎉' : percent >= 75 ? '🌟🎉' : percent >= 50 ? '👏✨' : '💪📘'}</div>
+      <p class="muted" style="max-width: 680px; margin: 12px auto 0; line-height:1.6;">
+        Nếu muốn luyện lại, hãy chọn một chủ đề khác hoặc đổi cấp độ để học sâu hơn.
+      </p>
+      <div class="row" style="justify-content:center; margin-top:16px;">
+        <button class="btn btn-primary" onclick="setPage('home')">Làm lại từ đầu</button>
+      </div>
+    </div>
+  `;
+  confetti();
+}
+
+function render() {
+  if (state.page === 'home') renderHome();
+  else if (state.page === 'quiz') renderQuiz();
+}
+
+render();
+</script>
+</body>
+</html>
